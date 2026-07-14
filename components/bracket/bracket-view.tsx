@@ -36,15 +36,6 @@ function RoundHeader({ label, matches }: { label: string; matches: Match[] }) {
   )
 }
 
-/** Consecutive match-number pairs within a round always feed the same next-round match. */
-function chunkPairs<T>(items: T[]): T[][] {
-  const pairs: T[][] = []
-  for (let i = 0; i < items.length; i += 2) {
-    pairs.push(items.slice(i, i + 2))
-  }
-  return pairs
-}
-
 export function BracketView({
   matches,
   players,
@@ -94,51 +85,27 @@ export function BracketView({
     )
   }
 
-  function renderPairs(roundMatches: Match[]) {
-    return (
-      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-        {chunkPairs(roundMatches).map((pair, i) => (
-          <div key={i} className="flex flex-col items-center">
-            <div
-              className={cn(
-                "flex flex-col gap-1",
-                pair.length === 2 && "rounded-lg border border-dashed border-border/70 p-1.5"
-              )}
-            >
-              {pair.map(renderMatch)}
-            </div>
-            {pair.length === 2 && <div className="h-2.5 w-px bg-border" />}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   return (
-    <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <div className="no-scrollbar max-h-[74vh] overflow-auto">
-        <div className="mx-auto flex flex-col items-center gap-4">
-          {roundNumbers.map((round) => {
-            const roundMatches = matches
-              .filter((m) => m.round === round && !m.isThirdPlaceMatch)
-              .sort((a, b) => a.matchNumber - b.matchNumber)
+    <div className="flex min-w-0 flex-col gap-4">
+      {roundNumbers.map((round) => {
+        const roundMatches = matches
+          .filter((m) => m.round === round && !m.isThirdPlaceMatch)
+          .sort((a, b) => a.matchNumber - b.matchNumber)
 
-            return (
-              <div key={round} className="flex w-full flex-col items-center gap-2.5">
-                <RoundHeader label={getRoundLabel(round, totalRounds)} matches={roundMatches} />
-                {renderPairs(roundMatches)}
-              </div>
-            )
-          })}
+        return (
+          <div key={round} className="min-w-0 rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <RoundHeader label={getRoundLabel(round, totalRounds)} matches={roundMatches} />
+            <div className="mt-3 flex flex-col gap-2">{roundMatches.map(renderMatch)}</div>
+          </div>
+        )
+      })}
 
-          {bronze && (
-            <div className="mt-1 flex w-full flex-col items-center gap-2.5 border-t border-dashed border-border pt-4">
-              <RoundHeader label="3rd Place Match" matches={[bronze]} />
-              {renderMatch(bronze)}
-            </div>
-          )}
+      {bronze && (
+        <div className="min-w-0 rounded-2xl border border-dashed border-border bg-card p-4 shadow-sm">
+          <RoundHeader label="3rd Place Match" matches={[bronze]} />
+          <div className="mt-3">{renderMatch(bronze)}</div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
