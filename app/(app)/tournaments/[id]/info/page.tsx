@@ -29,8 +29,8 @@ export default async function TournamentInfoPage({
   const initialPoints = rounds !== null ? getInitialWalletPoints(rounds) : null
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <div className="flex flex-col gap-4">
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2">
+      <div className="flex min-w-0 flex-col gap-4">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-3 font-heading text-base font-bold">Tournament rules</h2>
           <ol className="flex flex-col gap-3 text-sm text-muted-foreground">
@@ -75,7 +75,7 @@ export default async function TournamentInfoPage({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
         <h2 className="mb-3 flex items-center gap-2 font-heading text-base font-bold">
           <Users className="size-4 text-primary" />
           Participants

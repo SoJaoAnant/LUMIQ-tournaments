@@ -16,7 +16,7 @@ export function TournamentCard({
   isParticipant: boolean
 }) {
   return (
-    <Card className="relative flex flex-col transition-colors hover:border-primary/40">
+    <Card className="relative flex min-w-0 flex-col transition-colors hover:border-primary/40">
       <Link
         href={`/tournaments/${tournament.id}`}
         className="absolute inset-0 z-0 rounded-[inherit]"
@@ -24,8 +24,8 @@ export function TournamentCard({
         <span className="sr-only">View {tournament.title}</span>
       </Link>
       <CardHeader>
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-lg">{tournament.title}</CardTitle>
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <CardTitle className="min-w-0 truncate text-lg">{tournament.title}</CardTitle>
           <TournamentStatusBadge status={tournament.status} />
         </div>
       </CardHeader>

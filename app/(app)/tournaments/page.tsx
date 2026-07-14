@@ -33,7 +33,7 @@ export default async function TournamentsPage() {
           description="Check back once an admin creates one."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {tournaments.map((t) => (
             <TournamentCard
               key={t.id}

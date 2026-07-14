@@ -38,20 +38,20 @@ export default async function ProfilePage() {
             Account
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          <div>
+        <CardContent className="grid min-w-0 gap-3 sm:grid-cols-2">
+          <div className="min-w-0">
             <p className="text-xs text-muted-foreground">Name</p>
-            <p className="font-medium">{user.name}</p>
+            <p className="truncate font-medium">{user.name}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-muted-foreground">Company email</p>
-            <p className="font-medium">{user.email}</p>
+            <p className="truncate font-medium">{user.email}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-muted-foreground">Department</p>
-            <p className="font-medium">{user.department ?? "—"}</p>
+            <p className="truncate font-medium">{user.department ?? "—"}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs text-muted-foreground">Role</p>
             <Badge variant="secondary">{user.role}</Badge>
           </div>

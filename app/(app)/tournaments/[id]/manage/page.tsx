@@ -143,18 +143,18 @@ export default async function TournamentManagePage({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-border p-4">
+          <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+            <div className="min-w-0 rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Total Bets</p>
               <p className="text-2xl font-semibold">{bets.length}</p>
             </div>
-            <div className="rounded-xl border border-border p-4">
+            <div className="min-w-0 rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Points Wagered</p>
               <p className="text-2xl font-semibold">
                 {bets.reduce((sum, b) => sum + b.pointsSpent, 0)}
               </p>
             </div>
-            <div className="rounded-xl border border-border p-4">
+            <div className="min-w-0 rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Points Paid Out</p>
               <p className="text-2xl font-semibold">
                 {bets.reduce((sum, b) => sum + b.pointsEarned, 0)}

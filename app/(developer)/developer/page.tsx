@@ -32,12 +32,12 @@ export default async function DeveloperOverviewPage() {
         <p className="text-sm text-muted-foreground">Signed in as {user.name} ({user.role}).</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((card) => {
           const Icon = card.icon
           return (
-            <Link key={card.href} href={card.href}>
-              <Card className="transition-colors hover:bg-muted/50">
+            <Link key={card.href} href={card.href} className="min-w-0">
+              <Card className="min-w-0 transition-colors hover:bg-muted/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Icon className="size-4 text-primary" />

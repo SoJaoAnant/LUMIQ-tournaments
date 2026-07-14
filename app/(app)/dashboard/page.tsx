@@ -51,8 +51,8 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <div className="grid min-w-0 gap-4 lg:grid-cols-3">
+        <Card className="min-w-0 lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-base">
               <Trophy className="size-4 text-primary" />
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Swords className="size-4 text-primary" />

@@ -61,8 +61,8 @@ export default async function TournamentBettingPage({
   }))
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-      <div className="flex flex-col gap-4">
+    <div className="grid min-w-0 gap-4 lg:grid-cols-[1.7fr_1fr]">
+      <div className="flex min-w-0 flex-col gap-4">
         {openMatches.length === 0 ? (
           <EmptyState
             icon={Ticket}
@@ -91,7 +91,7 @@ export default async function TournamentBettingPage({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         <WalletHeroCard points={wallet?.currentPoints} correct={correct} incorrect={incorrect} />
         <BettingRulesCard rounds={rounds} initialPoints={initialPoints} />
       </div>

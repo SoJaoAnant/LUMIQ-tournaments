@@ -30,9 +30,9 @@ export default async function AdminOverviewPage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link href="/admin/tournaments">
-          <Card className="transition-colors hover:bg-muted/50">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+        <Link href="/admin/tournaments" className="min-w-0">
+          <Card className="min-w-0 transition-colors hover:bg-muted/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Trophy className="size-4 text-primary" />
@@ -42,7 +42,7 @@ export default async function AdminOverviewPage() {
             <CardContent className="text-3xl font-semibold">{tournamentCount}</CardContent>
           </Card>
         </Link>
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Users className="size-4 text-primary" />

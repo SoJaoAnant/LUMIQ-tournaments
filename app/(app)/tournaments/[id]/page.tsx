@@ -50,8 +50,8 @@ export default async function TournamentOverviewPage({
   const showResultsLink = tournament.status === "COMPLETED" || tournament.status === "ARCHIVED"
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1.55fr_1fr]">
-      <div className="flex flex-col gap-4">
+    <div className="grid min-w-0 gap-4 lg:grid-cols-[1.55fr_1fr]">
+      <div className="flex min-w-0 flex-col gap-4">
         {featured ? (
           <HeroMatchCard
             tournamentId={id}
@@ -131,7 +131,7 @@ export default async function TournamentOverviewPage({
         )}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex min-w-0 flex-col gap-4">
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-3 flex items-center gap-2 font-heading text-base font-bold">
             <Megaphone className="size-4 text-primary" />
