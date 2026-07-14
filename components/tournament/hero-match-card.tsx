@@ -2,6 +2,7 @@ import Link from "next/link"
 import type { Match } from "@prisma/client"
 
 import { getRoundLabel } from "@/lib/bracket"
+import { getBetStake } from "@/lib/betting"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { cn } from "@/lib/utils"
 
@@ -68,9 +69,14 @@ export function HeroMatchCard({
           ? `${roundLabel} · CONCLUDED`
           : `${roundLabel} · UPCOMING`
 
+  const stake = getBetStake(match.round)
+
   const cta =
     match.status === "BETTING_OPEN"
-      ? { href: `/tournaments/${tournamentId}/betting`, label: "Place your bet — win 2 points →" }
+      ? {
+          href: `/tournaments/${tournamentId}/betting`,
+          label: `Place your bet — win ${stake * 2} points →`,
+        }
       : match.status === "LIVE"
         ? { href: `/tournaments/${tournamentId}/bracket`, label: "Match is live — follow the bracket →" }
         : match.status === "FINISHED"

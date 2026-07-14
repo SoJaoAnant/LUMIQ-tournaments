@@ -57,6 +57,8 @@ export function BracketView({
   bettable = false,
   betsByMatch,
   canBet = false,
+  adminMode = false,
+  isDeveloper = false,
 }: {
   matches: Match[]
   players: Record<string, PlayerInfo>
@@ -64,6 +66,9 @@ export function BracketView({
   bettable?: boolean
   betsByMatch?: Record<string, string>
   canBet?: boolean
+  /** Enables inline match management (betting, start, winner, override) from the tree. */
+  adminMode?: boolean
+  isDeveloper?: boolean
 }) {
   if (matches.length === 0) {
     return (
@@ -83,36 +88,31 @@ export function BracketView({
     return (
       <MatchNode
         key={m.id}
-        matchId={m.id}
-        matchNumber={m.matchNumber}
-        status={m.status}
-        isBye={m.isBye}
-        isThirdPlaceMatch={m.isThirdPlaceMatch}
+        match={m}
         player1={m.player1Id ? players[m.player1Id] : undefined}
         player2={m.player2Id ? players[m.player2Id] : undefined}
-        winnerId={m.winnerId}
-        player1Id={m.player1Id}
-        player2Id={m.player2Id}
         bettable={bettable}
         myBetPredictedWinnerId={betsByMatch?.[m.id] ?? null}
         canBet={canBet}
+        adminMode={adminMode}
+        isDeveloper={isDeveloper}
       />
     )
   }
 
   return (
     <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <div className="max-h-[74vh] overflow-auto">
-        <div className="mx-auto flex min-w-[900px] flex-col items-center gap-3">
+      <div className="no-scrollbar max-h-[74vh] overflow-auto">
+        <div className="mx-auto flex min-w-[560px] flex-col items-center gap-2">
           {roundNumbers.map((round, idx) => {
             const roundMatches = matches
               .filter((m) => m.round === round && !m.isThirdPlaceMatch)
               .sort((a, b) => a.matchNumber - b.matchNumber)
 
             return (
-              <div key={round} className="flex w-full flex-col items-center gap-4">
+              <div key={round} className="flex w-full flex-col items-center gap-2.5">
                 <RoundHeader label={getRoundLabel(round, totalRounds)} matches={roundMatches} />
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-2">
                   {roundMatches.map(renderMatch)}
                 </div>
                 {idx < roundNumbers.length - 1 && <RoundConnector />}
@@ -121,7 +121,7 @@ export function BracketView({
           })}
 
           {bronze && (
-            <div className="mt-2 flex w-full flex-col items-center gap-4 border-t border-dashed border-border pt-6">
+            <div className="mt-1 flex w-full flex-col items-center gap-2.5 border-t border-dashed border-border pt-4">
               <RoundHeader label="3rd Place Match" matches={[bronze]} />
               {renderMatch(bronze)}
             </div>

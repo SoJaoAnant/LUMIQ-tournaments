@@ -4,6 +4,7 @@ import { Users } from "lucide-react"
 import { getTournament } from "@/lib/data/tournaments"
 import { db } from "@/lib/db"
 import { computeRounds } from "@/lib/bracket"
+import { getInitialWalletPoints } from "@/lib/betting"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { EmptyState } from "@/components/shared/empty-state"
 import { cn } from "@/lib/utils"
@@ -25,7 +26,7 @@ export default async function TournamentInfoPage({
   })
 
   const rounds = participants.length > 0 ? computeRounds(participants.length) : null
-  const initialPoints = rounds !== null ? rounds + 5 : null
+  const initialPoints = rounds !== null ? getInitialWalletPoints(rounds) : null
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -57,17 +58,18 @@ export default async function TournamentInfoPage({
             <li>• Betting automatically locks the moment a match goes live.</li>
             <li>• Your full betting history stays visible, win or lose.</li>
             <li>
-              • You start with <strong className="text-foreground">rounds + 5</strong> betting
-              points
+              • You start with enough points to bet every round and lose every time, plus a small
+              cushion
               {initialPoints !== null && (
                 <>
                   {" "}
-                  — for this cup&apos;s current {participants.length} players, that&apos;s{" "}
-                  <strong className="text-foreground">{initialPoints} points</strong> ({rounds}{" "}
-                  rounds + 5)
+                  — for this cup&apos;s current {participants.length} players ({rounds} rounds),
+                  that&apos;s <strong className="text-foreground">{initialPoints} points</strong>{" "}
+                  (1+2+...+{rounds} plus 5)
                 </>
               )}
-              . Correct picks return 2, wrong ones return none.
+              . Stakes rise with the round — 1 point in round 1, 2 in round 2, and so on. Correct
+              picks return double the stake; wrong ones lose it, even into negative points.
             </li>
           </ul>
         </div>

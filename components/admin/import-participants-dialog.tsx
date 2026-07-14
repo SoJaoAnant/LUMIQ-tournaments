@@ -116,7 +116,7 @@ export function ImportParticipantsDialog({ tournamentId }: { tournamentId: strin
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button disabled={submitting} onClick={handleSubmit}>
+          <Button disabled={submitting} loading={submitting} onClick={handleSubmit}>
             Import
           </Button>
         </DialogFooter>

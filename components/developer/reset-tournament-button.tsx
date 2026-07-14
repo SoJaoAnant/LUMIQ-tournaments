@@ -44,6 +44,7 @@ export function ResetTournamentButton({ tournamentId }: { tournamentId: string }
           <Button
             variant="destructive"
             disabled={isPending}
+            loading={isPending}
             onClick={() =>
               startTransition(async () => {
                 try {

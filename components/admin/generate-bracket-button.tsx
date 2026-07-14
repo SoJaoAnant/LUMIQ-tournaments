@@ -48,6 +48,7 @@ export function GenerateBracketButton({
           </Button>
           <Button
             disabled={isPending}
+            loading={isPending}
             onClick={() =>
               startTransition(async () => {
                 try {

@@ -23,6 +23,7 @@ export function RemoveParticipantButton({
       variant="ghost"
       size="icon-sm"
       disabled={isPending}
+      loading={isPending}
       onClick={() =>
         startTransition(async () => {
           try {

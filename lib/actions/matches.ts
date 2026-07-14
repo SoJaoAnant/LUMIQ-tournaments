@@ -6,16 +6,6 @@ import { db } from "@/lib/db"
 import { resolveMatchWinner } from "@/lib/match-resolution"
 import { revalidateTournamentPaths as revalidateTournament } from "@/lib/revalidate"
 
-export async function scheduleMatch(matchId: string, scheduledTime: string) {
-  const admin = await requireRoleForAction("ADMIN")
-  const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
-
-  await db.match.update({ where: { id: matchId }, data: { scheduledTime: new Date(scheduledTime) } })
-
-  await logAudit(admin.id, "match.schedule", { matchId, scheduledTime })
-  revalidateTournament(match.tournamentId)
-}
-
 export async function openBetting(matchId: string) {
   const admin = await requireRoleForAction("ADMIN")
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
@@ -75,6 +65,127 @@ export async function declareWinner(matchId: string, winnerId: string) {
   await resolveMatchWinner(matchId, winnerId)
   await logAudit(admin.id, "match.declareWinner", { matchId, winnerId })
   revalidateTournament(match.tournamentId)
+}
+
+/**
+ * Opens betting on every currently-eligible match at once (both players
+ * known, not yet started) — e.g. the whole first round right after the
+ * bracket is generated, instead of opening each match one at a time.
+ */
+export async function openAllBetting(tournamentId: string) {
+  const admin = await requireRoleForAction("ADMIN")
+
+  const eligible = await db.match.findMany({
+    where: {
+      tournamentId,
+      status: "SCHEDULED",
+      isBye: false,
+      player1Id: { not: null },
+      player2Id: { not: null },
+    },
+  })
+
+  if (eligible.length === 0) {
+    throw new ForbiddenError("No matches are currently eligible for betting.")
+  }
+
+  await db.match.updateMany({
+    where: { id: { in: eligible.map((m) => m.id) } },
+    data: { status: "BETTING_OPEN" },
+  })
+
+  await logAudit(admin.id, "match.betting.openAll", { tournamentId, count: eligible.length })
+  revalidateTournament(tournamentId)
+  return eligible.length
+}
+
+/** Closes betting on every currently-open match at once. */
+export async function closeAllBetting(tournamentId: string) {
+  const admin = await requireRoleForAction("ADMIN")
+
+  const result = await db.match.updateMany({
+    where: { tournamentId, status: "BETTING_OPEN" },
+    data: { status: "SCHEDULED" },
+  })
+
+  await logAudit(admin.id, "match.betting.closeAll", { tournamentId, count: result.count })
+  revalidateTournament(tournamentId)
+  return result.count
+}
+
+/**
+ * Swaps two players sitting in (possibly different) matches of the same round —
+ * e.g. turning "A vs B" + "C vs D" into "A vs D" + "B vs C" by swapping B and D.
+ * Restricted to matches that haven't started and have no bets yet, so no bet
+ * ends up pointing at a player who's no longer in that match.
+ */
+export async function swapBracketPlayers(
+  matchAId: string,
+  slotA: 1 | 2,
+  matchBId: string,
+  slotB: 1 | 2
+) {
+  const admin = await requireRoleForAction("ADMIN")
+
+  if (matchAId === matchBId && slotA === slotB) {
+    throw new ForbiddenError("Pick two different players to swap.")
+  }
+
+  const [matchA, matchB] = await Promise.all([
+    db.match.findUniqueOrThrow({ where: { id: matchAId } }),
+    db.match.findUniqueOrThrow({ where: { id: matchBId } }),
+  ])
+
+  if (matchA.tournamentId !== matchB.tournamentId) {
+    throw new ForbiddenError("Both matches must be in the same tournament.")
+  }
+  if (matchA.round !== matchB.round) {
+    throw new ForbiddenError("You can only swap players within the same round.")
+  }
+  if (matchA.isBye || matchB.isBye || matchA.isThirdPlaceMatch || matchB.isThirdPlaceMatch) {
+    throw new ForbiddenError("Byes and the bronze match can't be swapped.")
+  }
+  if (matchA.status !== "SCHEDULED" || matchB.status !== "SCHEDULED") {
+    throw new ForbiddenError("Both matches must still be scheduled (not started) to swap players.")
+  }
+
+  const [betsA, betsB] = await Promise.all([
+    db.bet.count({ where: { matchId: matchAId } }),
+    db.bet.count({ where: { matchId: matchBId } }),
+  ])
+  if (betsA > 0 || betsB > 0) {
+    throw new ForbiddenError("Can't swap — bets have already been placed on one of these matches.")
+  }
+
+  const playerAId = slotA === 1 ? matchA.player1Id : matchA.player2Id
+  const playerBId = slotB === 1 ? matchB.player1Id : matchB.player2Id
+  if (!playerAId || !playerBId) {
+    throw new ForbiddenError("Both slots must have a player assigned to swap.")
+  }
+  if (playerAId === playerBId) {
+    throw new ForbiddenError("That's the same player.")
+  }
+
+  await db.$transaction([
+    db.match.update({
+      where: { id: matchAId },
+      data: slotA === 1 ? { player1Id: playerBId } : { player2Id: playerBId },
+    }),
+    db.match.update({
+      where: { id: matchBId },
+      data: slotB === 1 ? { player1Id: playerAId } : { player2Id: playerAId },
+    }),
+  ])
+
+  await logAudit(admin.id, "match.swapPlayers", {
+    matchAId,
+    slotA,
+    matchBId,
+    slotB,
+    playerAId,
+    playerBId,
+  })
+  revalidateTournament(matchA.tournamentId)
 }
 
 export async function disqualifyParticipant(tournamentId: string, participantId: string) {

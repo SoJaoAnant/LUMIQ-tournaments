@@ -55,7 +55,7 @@ export default async function DeveloperTournamentsPage() {
                     {t.status !== "DRAFT" && t.status !== "REGISTRATION_OPEN" && (
                       <ResetTournamentButton tournamentId={t.id} />
                     )}
-                    <TournamentRowActions tournamentId={t.id} status={t.status} />
+                    <TournamentRowActions tournamentId={t.id} />
                   </div>
                 </TableCell>
               </TableRow>

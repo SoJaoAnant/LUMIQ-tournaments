@@ -24,7 +24,7 @@ export function TournamentTabs({
   ]
 
   return (
-    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <div className="no-scrollbar -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <nav className="flex w-max min-w-full gap-1.5 sm:w-full">
         {tabs.map((tab) => {
           const active = tab.href === base ? pathname === base : pathname.startsWith(tab.href)

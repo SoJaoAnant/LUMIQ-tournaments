@@ -7,6 +7,7 @@ import type { Role } from "@prisma/client"
 import { Menu } from "lucide-react"
 
 import { NavLinks } from "@/components/layout/nav-links"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -41,6 +42,7 @@ export function Topbar({ role, name }: { role: Role; name: string }) {
 
       <div className="flex items-center gap-3">
         <span className="hidden text-sm text-muted-foreground sm:inline">{name}</span>
+        <ThemeToggle />
         <UserButton />
       </div>
     </header>

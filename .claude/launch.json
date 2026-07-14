@@ -12,6 +12,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "4001", "--directory", "design_handoff_tournament_platform/reference"],
       "port": 4001
+    },
+    {
+      "name": "tournament-app-scratch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "-p", "3002"],
+      "port": 3002
     }
   ]
 }

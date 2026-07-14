@@ -12,14 +12,15 @@ export function BettingRulesCard({
         <li>One bet per match, and you can&apos;t back both players.</li>
         <li>Bets lock the instant a match goes live — no edits after that.</li>
         <li>
-          Correct picks return <strong className="text-foreground">+2</strong>, wrong ones cost the
-          1 point staked.
+          Stakes rise with the round — 1 point in round 1, 2 in round 2, 3 in round 3, and so on.
+          Correct picks return double the stake; wrong ones lose it, even into negative points.
         </li>
         {initialPoints !== null && rounds !== null && (
           <li>
             You started this cup with{" "}
-            <strong className="text-foreground">{initialPoints} points</strong> ({rounds} rounds +
-            5).
+            <strong className="text-foreground">{initialPoints} points</strong> — enough to bet
+            every one of the {rounds} round{rounds === 1 ? "" : "s"} and lose every time, plus a
+            small cushion.
           </li>
         )}
       </ul>

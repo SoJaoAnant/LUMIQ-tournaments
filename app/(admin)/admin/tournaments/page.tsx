@@ -5,17 +5,9 @@ import { requireRole } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { EmptyState } from "@/components/shared/empty-state"
-import { TournamentStatusBadge } from "@/components/tournament/status-badge"
-import { TournamentRowActions } from "@/components/admin/tournament-row-actions"
+import { AdminTournamentRow } from "@/components/admin/admin-tournament-row"
 
 export default async function AdminTournamentsPage() {
   await requireRole("ADMIN")
@@ -67,20 +59,7 @@ export default async function AdminTournamentsPage() {
               </TableHeader>
               <TableBody>
                 {tournaments.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell className="font-medium">{t.title}</TableCell>
-                    <TableCell>
-                      <TournamentStatusBadge status={t.status} />
-                    </TableCell>
-                    <TableCell>{t._count.participants}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {t.registrationOpen.toLocaleDateString()} –{" "}
-                      {t.registrationClose.toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <TournamentRowActions tournamentId={t.id} status={t.status} />
-                    </TableCell>
-                  </TableRow>
+                  <AdminTournamentRow key={t.id} tournament={t} participantCount={t._count.participants} />
                 ))}
               </TableBody>
             </Table>

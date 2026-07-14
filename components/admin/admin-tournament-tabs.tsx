@@ -19,7 +19,7 @@ export function AdminTournamentTabs({ tournamentId }: { tournamentId: string }) 
   ]
 
   return (
-    <div className="-mx-4 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
+    <div className="no-scrollbar -mx-4 overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0">
       <nav className="flex w-max min-w-full gap-1 sm:w-full">
         {tabs.map((tab) => {
           const active = pathname.startsWith(tab.href)

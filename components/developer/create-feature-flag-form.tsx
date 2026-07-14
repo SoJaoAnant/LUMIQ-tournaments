@@ -36,7 +36,7 @@ export function CreateFeatureFlagForm() {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <Button disabled={!key || isPending} onClick={handleSubmit} className="shrink-0">
+      <Button disabled={!key || isPending} loading={isPending} onClick={handleSubmit} className="shrink-0">
         Add Flag
       </Button>
     </div>

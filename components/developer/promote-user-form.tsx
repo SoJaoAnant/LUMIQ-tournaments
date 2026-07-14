@@ -46,7 +46,7 @@ export function PromoteUserForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <Button variant="outline" disabled={!email || isPending} onClick={handleSearch}>
+        <Button variant="outline" disabled={!email || isPending} loading={isPending} onClick={handleSearch}>
           Find
         </Button>
       </div>
@@ -58,7 +58,11 @@ export function PromoteUserForm() {
               {found.email} · currently {found.role}
             </p>
           </div>
-          <Button disabled={isPending || found.role !== "USER"} onClick={handlePromote}>
+          <Button
+            disabled={isPending || found.role !== "USER"}
+            loading={isPending}
+            onClick={handlePromote}
+          >
             Make Admin
           </Button>
         </div>

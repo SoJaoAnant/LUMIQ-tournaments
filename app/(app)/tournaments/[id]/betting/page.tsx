@@ -6,6 +6,7 @@ import { db } from "@/lib/db"
 import { getTournament } from "@/lib/data/tournaments"
 import { getBracketData } from "@/lib/data/bracket"
 import { computeRounds } from "@/lib/bracket"
+import { getInitialWalletPoints } from "@/lib/betting"
 import { BetBuilder } from "@/components/betting/bet-builder"
 import { WalletHeroCard } from "@/components/betting/wallet-hero-card"
 import { BettingRulesCard } from "@/components/betting/betting-rules-card"
@@ -38,7 +39,7 @@ export default async function TournamentBettingPage({
 
   const totalRounds = matches.length ? Math.max(...matches.map((m) => m.round)) : 0
   const rounds = participantCount > 0 ? computeRounds(participantCount) : null
-  const initialPoints = rounds !== null ? rounds + 5 : null
+  const initialPoints = rounds !== null ? getInitialWalletPoints(rounds) : null
 
   const betsByMatch = new Map(myBets.map((b) => [b.matchId, b]))
   const canBet = (wallet?.currentPoints ?? 0) >= 1

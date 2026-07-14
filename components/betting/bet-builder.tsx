@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { placeBet } from "@/lib/actions/bets"
+import { getBetStake } from "@/lib/betting"
 import { getRoundLabel } from "@/lib/bracket"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { Button } from "@/components/ui/button"
@@ -117,6 +118,7 @@ export function BetBuilder({
   const p1 = players[player1Id]
   const p2 = players[player2Id]
   const pickedName = pick === player1Id ? p1?.name : p2?.name
+  const stake = getBetStake(round)
 
   function handleLock() {
     if (!pick) return
@@ -124,7 +126,7 @@ export function BetBuilder({
       try {
         await placeBet(matchId, pick)
         setConfirmOpen(false)
-        toast.success(`Locked in on ${pickedName} — win 2 points if they take it!`)
+        toast.success(`Locked in on ${pickedName} — win ${stake * 2} points if they take it!`)
         setBurst(true)
         setTimeout(() => setBurst(false), 950)
         router.refresh()
@@ -162,9 +164,9 @@ export function BetBuilder({
       </div>
 
       <p className="mt-4 text-center text-xs text-muted-foreground">
-        Stake <strong className="text-foreground">1 point</strong> · win{" "}
-        <strong className="text-[#2C9E6E]">+2</strong> · miss{" "}
-        <strong className="text-destructive">−1</strong>
+        Stake <strong className="text-foreground">{stake} pt{stake === 1 ? "" : "s"}</strong> · win{" "}
+        <strong className="text-[#2C9E6E]">+{stake * 2}</strong> · miss{" "}
+        <strong className="text-destructive">−{stake}</strong>
       </p>
 
       <div className="relative mt-3">
@@ -192,15 +194,17 @@ export function BetBuilder({
           <DialogHeader>
             <DialogTitle>Lock your bet?</DialogTitle>
             <DialogDescription>
-              You&apos;re backing <strong className="text-foreground">{pickedName}</strong>. Costs 1
-              point, wins 2 back if they take the match. This can&apos;t be changed once locked.
+              You&apos;re backing <strong className="text-foreground">{pickedName}</strong>. Costs{" "}
+              {stake} point{stake === 1 ? "" : "s"}, wins {stake * 2} back if they take the match —
+              and if you can&apos;t cover the stake, your wallet goes negative. This can&apos;t be
+              changed once locked.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmOpen(false)} disabled={isPending}>
               Cancel
             </Button>
-            <Button onClick={handleLock} disabled={isPending}>
+            <Button onClick={handleLock} disabled={isPending} loading={isPending}>
               Lock it in
             </Button>
           </DialogFooter>

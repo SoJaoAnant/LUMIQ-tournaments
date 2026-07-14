@@ -1,11 +1,11 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
-
 import { requireRoleForAction, ForbiddenError } from "@/lib/auth"
 import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { generateBracketMatches } from "@/lib/bracket"
+import { getInitialWalletPoints } from "@/lib/betting"
+import { revalidateTournamentPaths } from "@/lib/revalidate"
 
 export async function generateBracket(tournamentId: string) {
   const admin = await requireRoleForAction("ADMIN")
@@ -21,7 +21,7 @@ export async function generateBracket(tournamentId: string) {
   }
 
   const { rounds, matches, seeds } = generateBracketMatches(participants.map((p) => p.id))
-  const initialPoints = rounds + 5
+  const initialPoints = getInitialWalletPoints(rounds)
 
   await db.$transaction([
     db.match.createMany({
@@ -69,11 +69,5 @@ export async function generateBracket(tournamentId: string) {
     participantCount: participants.length,
   })
 
-  revalidatePath(`/admin/tournaments/${tournamentId}`)
-  revalidatePath(`/tournaments/${tournamentId}`)
-  revalidatePath(`/tournaments/${tournamentId}/bracket`)
-  revalidatePath(`/tournaments/${tournamentId}/participants`)
-  revalidatePath(`/tournaments/${tournamentId}/rules`)
-  revalidatePath("/tournaments")
-  revalidatePath("/admin/tournaments")
+  revalidateTournamentPaths(tournamentId)
 }

@@ -75,7 +75,7 @@ export function AnnouncementForm({ tournamentId }: { tournamentId: string }) {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={submitting} className="w-fit">
+        <Button type="submit" disabled={submitting} loading={submitting} className="w-fit">
           Publish
         </Button>
       </form>

@@ -81,7 +81,12 @@ export default async function TournamentLeaderboardPage({
                     )}
                   </span>
                 </div>
-                <span className="text-right font-heading text-sm font-bold text-foreground">
+                <span
+                  className={cn(
+                    "text-right font-heading text-sm font-bold",
+                    row.points < 0 ? "text-destructive" : "text-foreground"
+                  )}
+                >
                   {row.points}
                 </span>
                 <span className="text-right text-sm text-muted-foreground">{row.accuracy}%</span>

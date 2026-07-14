@@ -48,11 +48,11 @@ export function JoinLeaveButton({
   }
 
   return isParticipant ? (
-    <Button variant="destructive" disabled={isPending} onClick={handleLeave}>
+    <Button variant="destructive" disabled={isPending} loading={isPending} onClick={handleLeave}>
       Leave Tournament
     </Button>
   ) : (
-    <Button disabled={isPending} onClick={handleJoin}>
+    <Button disabled={isPending} loading={isPending} onClick={handleJoin}>
       Join Tournament
     </Button>
   )

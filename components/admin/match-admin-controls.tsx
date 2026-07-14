@@ -4,24 +4,15 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import type { Match } from "@prisma/client"
-import { CalendarClock, Play, ShieldAlert, Ticket, Trophy } from "lucide-react"
+import { Play, ShieldAlert, Ticket, Trophy } from "lucide-react"
 
-import {
-  closeBetting,
-  declareWinner,
-  openBetting,
-  scheduleMatch,
-  startMatch,
-} from "@/lib/actions/matches"
+import { closeBetting, declareWinner, openBetting, startMatch } from "@/lib/actions/matches"
 import { overrideMatch } from "@/lib/actions/developer"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -40,10 +31,8 @@ export function MatchAdminControls({
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [scheduleOpen, setScheduleOpen] = useState(false)
   const [winnerOpen, setWinnerOpen] = useState(false)
   const [overrideOpen, setOverrideOpen] = useState(false)
-  const [scheduledTime, setScheduledTime] = useState("")
 
   function run(action: () => Promise<unknown>, message: string) {
     startTransition(async () => {
@@ -88,6 +77,7 @@ export function MatchAdminControls({
                   variant={pid === match.winnerId ? "default" : "outline"}
                   className="justify-start"
                   disabled={isPending || pid === match.winnerId}
+                  loading={isPending}
                   onClick={() => {
                     run(() => overrideMatch(match.id, pid), "Result overridden")
                     setOverrideOpen(false)
@@ -105,49 +95,12 @@ export function MatchAdminControls({
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Dialog open={scheduleOpen} onOpenChange={setScheduleOpen}>
-        <DialogTrigger render={<Button variant="outline" size="sm" />}>
-          <CalendarClock className="size-3.5" />
-          Schedule
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Schedule Match {match.matchNumber}</DialogTitle>
-            <DialogDescription>Set when this match will be played.</DialogDescription>
-          </DialogHeader>
-          <div>
-            <Label htmlFor="scheduledTime" className="mb-1.5 block">
-              Date &amp; time
-            </Label>
-            <Input
-              id="scheduledTime"
-              type="datetime-local"
-              value={scheduledTime}
-              onChange={(e) => setScheduledTime(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setScheduleOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              disabled={!scheduledTime || isPending}
-              onClick={() => {
-                run(() => scheduleMatch(match.id, scheduledTime), "Match scheduled")
-                setScheduleOpen(false)
-              }}
-            >
-              Save
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {match.status === "SCHEDULED" && bothKnown && (
         <Button
           variant="outline"
           size="sm"
           disabled={isPending}
+          loading={isPending}
           onClick={() => run(() => openBetting(match.id), "Betting opened")}
         >
           <Ticket className="size-3.5" />
@@ -160,6 +113,7 @@ export function MatchAdminControls({
           variant="outline"
           size="sm"
           disabled={isPending}
+          loading={isPending}
           onClick={() => run(() => closeBetting(match.id), "Betting closed")}
         >
           Close Betting
@@ -170,6 +124,7 @@ export function MatchAdminControls({
         <Button
           size="sm"
           disabled={isPending}
+          loading={isPending}
           onClick={() => run(() => startMatch(match.id), "Match is live")}
         >
           <Play className="size-3.5" />
@@ -196,6 +151,7 @@ export function MatchAdminControls({
                     variant="outline"
                     className="justify-start"
                     disabled={isPending}
+                    loading={isPending}
                     onClick={() => {
                       run(() => declareWinner(match.id, pid), "Winner declared")
                       setWinnerOpen(false)

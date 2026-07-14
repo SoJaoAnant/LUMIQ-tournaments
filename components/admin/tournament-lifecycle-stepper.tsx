@@ -17,7 +17,7 @@ export function TournamentLifecycleStepper({ status }: { status: TournamentStatu
   const currentIndex = STEPS.findIndex((s) => s.status === status)
 
   return (
-    <div className="w-full overflow-x-auto pb-1">
+    <div className="no-scrollbar w-full overflow-x-auto pb-1">
       <ol className="flex w-max min-w-full items-start sm:w-full">
         {STEPS.map((step, i) => {
           const isDone = i < currentIndex

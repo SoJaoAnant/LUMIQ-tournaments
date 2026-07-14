@@ -50,6 +50,7 @@ export function DisqualifyParticipantButton({
           <Button
             variant="destructive"
             disabled={isPending}
+            loading={isPending}
             onClick={() =>
               startTransition(async () => {
                 try {

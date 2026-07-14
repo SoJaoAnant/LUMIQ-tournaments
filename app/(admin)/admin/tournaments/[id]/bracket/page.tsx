@@ -5,6 +5,8 @@ import { db } from "@/lib/db"
 import { getBracketData } from "@/lib/data/bracket"
 import { BracketView } from "@/components/bracket/bracket-view"
 import { GenerateBracketButton } from "@/components/admin/generate-bracket-button"
+import { BracketSwapPanel } from "@/components/admin/bracket-swap-panel"
+import { BulkBettingControls } from "@/components/admin/bulk-betting-controls"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Info } from "lucide-react"
 
@@ -13,7 +15,7 @@ export default async function AdminBracketPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  await requireRole("ADMIN")
+  const admin = await requireRole("ADMIN")
   const { id } = await params
 
   const tournament = await db.tournament.findUnique({ where: { id } })
@@ -44,7 +46,31 @@ export default async function AdminBracketPage({
         </Alert>
       )}
 
-      <BracketView matches={matches} players={players} />
+      {matches.length > 0 && (
+        <>
+          <BulkBettingControls
+            tournamentId={id}
+            eligibleCount={
+              matches.filter(
+                (m) => m.status === "SCHEDULED" && !m.isBye && m.player1Id && m.player2Id
+              ).length
+            }
+            openCount={matches.filter((m) => m.status === "BETTING_OPEN").length}
+          />
+          <BracketSwapPanel
+            matches={matches}
+            players={players}
+            totalRounds={Math.max(...matches.map((m) => m.round))}
+          />
+        </>
+      )}
+
+      <BracketView
+        matches={matches}
+        players={players}
+        adminMode
+        isDeveloper={admin.role === "DEVELOPER"}
+      />
     </div>
   )
 }

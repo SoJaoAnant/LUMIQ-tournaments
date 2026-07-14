@@ -129,7 +129,7 @@ export function TournamentForm({
           />
         </div>
 
-        <Button type="submit" disabled={submitting} className="w-fit">
+        <Button type="submit" disabled={submitting} loading={submitting} className="w-fit">
           {tournament ? "Save Changes" : "Create Tournament"}
         </Button>
       </form>

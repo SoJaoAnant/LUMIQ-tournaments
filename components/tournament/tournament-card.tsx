@@ -2,7 +2,6 @@ import Link from "next/link"
 import { Users } from "lucide-react"
 import type { Tournament } from "@prisma/client"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { TournamentStatusBadge } from "@/components/tournament/status-badge"
 import { JoinLeaveButton } from "@/components/tournament/join-leave-button"
@@ -17,7 +16,13 @@ export function TournamentCard({
   isParticipant: boolean
 }) {
   return (
-    <Card className="flex flex-col">
+    <Card className="relative flex flex-col transition-colors hover:border-primary/40">
+      <Link
+        href={`/tournaments/${tournament.id}`}
+        className="absolute inset-0 z-0 rounded-[inherit]"
+      >
+        <span className="sr-only">View {tournament.title}</span>
+      </Link>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg">{tournament.title}</CardTitle>
@@ -33,15 +38,7 @@ export function TournamentCard({
           {participantCount} joined
         </div>
       </CardContent>
-      <CardFooter className="flex gap-2">
-        <Button
-          variant="outline"
-          className="flex-1"
-          render={<Link href={`/tournaments/${tournament.id}`} />}
-          nativeButton={false}
-        >
-          View
-        </Button>
+      <CardFooter className="relative z-10 flex gap-2">
         <JoinLeaveButton tournament={tournament} isParticipant={isParticipant} />
       </CardFooter>
     </Card>

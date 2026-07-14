@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
+import { RouteProgressBar } from "@/components/shared/route-progress-bar";
 
 const bodyFont = Plus_Jakarta_Sans({
   variable: "--font-body",
@@ -41,6 +42,7 @@ export default function RootLayout({
         <body className="min-h-full flex flex-col">
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <TooltipProvider>
+              <RouteProgressBar />
               {children}
               <Toaster position="top-right" />
             </TooltipProvider>
