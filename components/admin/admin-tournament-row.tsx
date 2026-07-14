@@ -19,7 +19,7 @@ export function AdminTournamentRow({
   return (
     <TableRow
       className="cursor-pointer"
-      onClick={() => router.push(`/admin/tournaments/${tournament.id}/edit`)}
+      onClick={() => router.push(`/tournaments/${tournament.id}/manage`)}
     >
       <TableCell className="font-medium">{tournament.title}</TableCell>
       <TableCell>

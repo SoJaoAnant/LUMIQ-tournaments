@@ -56,12 +56,12 @@ export function TournamentForm({
       if (tournament) {
         await updateTournament(tournament.id, values)
         toast.success("Tournament updated")
+        router.refresh()
       } else {
-        await createTournament(values)
+        const created = await createTournament(values)
         toast.success("Tournament created")
+        router.push(`/tournaments/${created.id}/manage`)
       }
-      router.push("/admin/tournaments")
-      router.refresh()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong")
     } finally {

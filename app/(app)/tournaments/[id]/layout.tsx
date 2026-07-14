@@ -5,6 +5,7 @@ import { db } from "@/lib/db"
 import { getMyParticipation, getTournament } from "@/lib/data/tournaments"
 import { getBracketData, getTournamentStage } from "@/lib/data/bracket"
 import { computeRounds } from "@/lib/bracket"
+import { hasAtLeastRole } from "@/lib/rbac"
 import { TournamentStatusBadge } from "@/components/tournament/status-badge"
 import { TournamentTabs } from "@/components/tournament/tournament-tabs"
 import { TournamentHeader } from "@/components/tournament/tournament-header"
@@ -53,7 +54,11 @@ export default async function TournamentDetailLayout({
         </div>
       </div>
 
-      <TournamentTabs tournamentId={id} bettingOpen={bettingOpen} />
+      <TournamentTabs
+        tournamentId={id}
+        bettingOpen={bettingOpen}
+        canManage={hasAtLeastRole(user.role, "ADMIN")}
+      />
 
       {children}
     </div>

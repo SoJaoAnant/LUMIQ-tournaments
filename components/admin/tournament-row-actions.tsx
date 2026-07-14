@@ -47,8 +47,8 @@ export function TournamentRowActions({ tournamentId }: { tournamentId: string })
           <MoreHorizontal className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<Link href={`/admin/tournaments/${tournamentId}/edit`} />}>
-            Edit
+          <DropdownMenuItem render={<Link href={`/tournaments/${tournamentId}/manage`} />}>
+            Manage
           </DropdownMenuItem>
           <DropdownMenuItem variant="destructive" onClick={() => setConfirmOpen(true)}>
             Delete

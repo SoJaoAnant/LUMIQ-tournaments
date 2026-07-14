@@ -9,7 +9,6 @@ import { revalidatePath } from "next/cache"
  */
 export function revalidateTournamentPaths(tournamentId: string) {
   const base = `/tournaments/${tournamentId}`
-  const adminBase = `/admin/tournaments/${tournamentId}`
 
   ;[
     base,
@@ -17,14 +16,8 @@ export function revalidateTournamentPaths(tournamentId: string) {
     `${base}/betting`,
     `${base}/leaderboard`,
     `${base}/info`,
+    `${base}/manage`,
     `${base}/results`,
-    adminBase,
-    `${adminBase}/edit`,
-    `${adminBase}/bracket`,
-    `${adminBase}/matches`,
-    `${adminBase}/participants`,
-    `${adminBase}/betting`,
-    `${adminBase}/export`,
   ].forEach((path) => revalidatePath(path))
 
   revalidatePath("/tournaments")

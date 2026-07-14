@@ -1,5 +1,5 @@
 import type { Match } from "@prisma/client"
-import { ArrowDown, Trophy } from "lucide-react"
+import { Trophy } from "lucide-react"
 
 import { getRoundLabel } from "@/lib/bracket"
 import { MatchNode } from "@/components/bracket/match-node"
@@ -36,19 +36,13 @@ function RoundHeader({ label, matches }: { label: string; matches: Match[] }) {
   )
 }
 
-function RoundConnector() {
-  return (
-    <div className="flex flex-col items-center gap-1 py-1">
-      <div className="h-4 w-px bg-border" />
-      <div className="grid size-[30px] shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-        <ArrowDown className="size-4" />
-      </div>
-      <div className="h-4 w-px bg-border" />
-      <p className="text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
-        Winners advance
-      </p>
-    </div>
-  )
+/** Consecutive match-number pairs within a round always feed the same next-round match. */
+function chunkPairs<T>(items: T[]): T[][] {
+  const pairs: T[][] = []
+  for (let i = 0; i < items.length; i += 2) {
+    pairs.push(items.slice(i, i + 2))
+  }
+  return pairs
 }
 
 export function BracketView({
@@ -100,11 +94,31 @@ export function BracketView({
     )
   }
 
+  function renderPairs(roundMatches: Match[]) {
+    return (
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+        {chunkPairs(roundMatches).map((pair, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div
+              className={cn(
+                "flex flex-col gap-1",
+                pair.length === 2 && "rounded-lg border border-dashed border-border/70 p-1.5"
+              )}
+            >
+              {pair.map(renderMatch)}
+            </div>
+            {pair.length === 2 && <div className="h-2.5 w-px bg-border" />}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
       <div className="no-scrollbar max-h-[74vh] overflow-auto">
-        <div className="mx-auto flex min-w-[560px] flex-col items-center gap-2">
-          {roundNumbers.map((round, idx) => {
+        <div className="mx-auto flex flex-col items-center gap-4">
+          {roundNumbers.map((round) => {
             const roundMatches = matches
               .filter((m) => m.round === round && !m.isThirdPlaceMatch)
               .sort((a, b) => a.matchNumber - b.matchNumber)
@@ -112,10 +126,7 @@ export function BracketView({
             return (
               <div key={round} className="flex w-full flex-col items-center gap-2.5">
                 <RoundHeader label={getRoundLabel(round, totalRounds)} matches={roundMatches} />
-                <div className="flex flex-wrap justify-center gap-2">
-                  {roundMatches.map(renderMatch)}
-                </div>
-                {idx < roundNumbers.length - 1 && <RoundConnector />}
+                {renderPairs(roundMatches)}
               </div>
             )
           })}

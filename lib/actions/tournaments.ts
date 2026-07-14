@@ -43,8 +43,8 @@ export async function updateTournament(tournamentId: string, values: TournamentF
 
   await logAudit(admin.id, "tournament.update", { tournamentId })
   revalidatePath("/admin/tournaments")
-  revalidatePath(`/admin/tournaments/${tournamentId}`)
   revalidatePath(`/tournaments/${tournamentId}`)
+  revalidatePath(`/tournaments/${tournamentId}/manage`)
   revalidatePath("/tournaments")
   return tournament
 }
@@ -69,8 +69,8 @@ export async function openRegistration(tournamentId: string) {
 
   await db.tournament.update({ where: { id: tournamentId }, data: { status: "REGISTRATION_OPEN" } })
   await logAudit(admin.id, "tournament.registration.open", { tournamentId })
-  revalidatePath(`/admin/tournaments/${tournamentId}`)
   revalidatePath(`/tournaments/${tournamentId}`)
+  revalidatePath(`/tournaments/${tournamentId}/manage`)
   revalidatePath("/tournaments")
 }
 
@@ -87,8 +87,8 @@ export async function closeRegistration(tournamentId: string) {
     data: { status: "REGISTRATION_CLOSED" },
   })
   await logAudit(admin.id, "tournament.registration.close", { tournamentId })
-  revalidatePath(`/admin/tournaments/${tournamentId}`)
   revalidatePath(`/tournaments/${tournamentId}`)
+  revalidatePath(`/tournaments/${tournamentId}/manage`)
   revalidatePath("/tournaments")
 }
 
