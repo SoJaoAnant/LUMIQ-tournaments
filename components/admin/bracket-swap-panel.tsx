@@ -103,10 +103,6 @@ export function BracketSwapPanel({
         <Repeat className="size-4 text-primary" />
         <h3 className="font-heading text-sm font-bold">Swap matchups</h3>
       </div>
-      <p className="mb-3 text-xs text-muted-foreground">
-        Pick two players from the same not-yet-started round to swap who they&apos;re facing —
-        e.g. turn &quot;A vs B&quot; + &quot;C vs D&quot; into &quot;A vs D&quot; + &quot;B vs C&quot;.
-      </p>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <Select value={aValue} onValueChange={(value) => setAValue(value ?? "")}>
           <SelectTrigger className="w-full sm:w-64">
