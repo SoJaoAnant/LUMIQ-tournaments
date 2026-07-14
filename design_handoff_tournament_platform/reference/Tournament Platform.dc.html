@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{-webkit-font-smoothing:antialiased}
+a{color:#6D70D6;text-decoration:none}
+a:hover{color:#898CEC}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#DAD6EE;border-radius:8px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background:#C3BEE6;background-clip:content-box}
+@keyframes coinpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+@keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(236,106,94,.55)}70%{box-shadow:0 0 0 7px rgba(236,106,94,0)}100%{box-shadow:0 0 0 0 rgba(236,106,94,0)}}
+@keyframes slideup{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes confpop{0%{transform:translate(-50%,0) scale(.4);opacity:1}100%{transform:translate(calc(-50% + var(--tx,0px)), var(--ty,-60px)) scale(1) rotate(var(--rot,90deg));opacity:0}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes glow{0%,100%{opacity:.5}50%{opacity:.85}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(1100px 560px at 100% -8%,rgba(177,206,248,.30),transparent 55%),radial-gradient(980px 520px at -10% 0%,rgba(229,131,186,.16),transparent 50%),#FBFAFF;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1C1B2E;display:flex">
+
+  <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+  <aside style="width:250px;flex:none;height:100vh;position:sticky;top:0;padding:22px 16px;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.72);backdrop-filter:blur(14px);border-right:1px solid #ECE9F7">
+    <div style="display:flex;align-items:center;gap:11px;padding:6px 8px 20px">
+      <div style="width:36px;height:36px;border-radius:50%;background:conic-gradient(from 210deg,#B1CEF8,#898CEC,#E583BA,#F0B8DA,#B1CEF8);-webkit-mask:radial-gradient(circle at center,transparent 40%,#000 43%);mask:radial-gradient(circle at center,transparent 40%,#000 43%);flex:none"></div>
+      <div style="line-height:1.1"><div style="font:800 15.5px 'Plus Jakarta Sans';color:#1C1B2E">LUMIQ</div><div style="font:600 11px 'Plus Jakarta Sans';color:#898CEC;letter-spacing:.06em;text-transform:uppercase">Arena</div></div>
+    </div>
+    <button onClick="{{ goDash }}" style="{{ navDash }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</button>
+    <button onClick="{{ goTour }}" style="{{ navPlay }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v3a6 6 0 0 1-12 0z"/><path d="M6 5H4v2a3 3 0 0 0 3 3M18 5h2v2a3 3 0 0 1-3 3M9 20h6M12 13v7"/></svg>Tournaments</button>
+    <button onClick="{{ goBoard }}" style="{{ navBoard }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M20 20H2"/></svg>Leaderboard</button>
+    <button onClick="{{ goAdmin }}" style="{{ navAdmin }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>Admin</button>
+    <div style="margin-top:auto;padding:14px;border-radius:16px;background:linear-gradient(160deg,rgba(137,140,236,.10),rgba(177,206,248,.06));border:1px solid #E7E3F6">
+      <div style="font:700 12px 'Plus Jakarta Sans';color:#6D70D6;margin-bottom:4px">Season 2 · Live</div>
+      <div style="font:600 12px 'Plus Jakarta Sans';color:#7A7893;line-height:1.4">The Final is open for betting. Don't miss your last call.</div>
+    </div>
+  </aside>
+  </sc-if>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh">
+    <header style="{{ headerStyle }}">
+      <div style="display:flex;align-items:center;gap:12px;min-width:0">
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <div style="width:32px;height:32px;border-radius:50%;background:conic-gradient(from 210deg,#B1CEF8,#898CEC,#E583BA,#F0B8DA,#B1CEF8);-webkit-mask:radial-gradient(circle at center,transparent 40%,#000 43%);mask:radial-gradient(circle at center,transparent 40%,#000 43%);flex:none"></div>
+        </sc-if>
+        <div style="min-width:0"><div style="font:700 15px 'Space Grotesk';color:#1C1B2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ headerTitle }}</div><div style="font:600 11.5px 'Plus Jakarta Sans';color:#9B99B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ headerSub }}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex:none">
+        <sc-if value="{{ showCoin }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:center;gap:9px;padding:6px 15px 6px 7px;background:linear-gradient(135deg,#FFF7E6,#FFFBF3);border:1px solid #F1E4C3;border-radius:999px;box-shadow:0 2px 9px rgba(233,185,73,.18)">
+          <div style="width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FBE6A0,#E9B949 68%,#C8971F);box-shadow:inset 0 1px 2px rgba(255,255,255,.75),0 1px 3px rgba(200,151,31,.5);display:grid;place-items:center;animation:coinpulse 2.6s ease-in-out infinite"><span style="font:700 12px 'Space Grotesk';color:#8A6410">P</span></div>
+          <div style="line-height:1"><div style="font:700 15px 'Space Grotesk';color:#8A6410">{{ points }}</div><div style="font:600 9px 'Plus Jakarta Sans';color:#B08A2E;letter-spacing:.03em;text-transform:uppercase">this cup</div></div>
+        </div>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:9px">
+          <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}"><span style="font:700 13px 'Plus Jakarta Sans';color:#43415C">Anant Sinha</span></sc-if>
+          <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#898CEC,#E583BA);color:#fff;font:800 13px 'Space Grotesk';display:grid;place-items:center;box-shadow:0 3px 8px rgba(137,140,236,.35)">AS</div>
+        </div>
+      </div>
+    </header>
+
+    <main style="{{ mainStyle }}">
+
+      <!-- ============ DASHBOARD ============ -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1180px;margin:0 auto;width:100%">
+        <div style="margin-bottom:22px"><h1 style="font:800 26px 'Space Grotesk';margin:0 0 5px;color:#1C1B2E">Welcome back, Anant</h1><p style="margin:0;font:500 14.5px 'Plus Jakarta Sans';color:#7A7893">You're one match from the title. And there's a bet with your name on it.</p></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h2 style="font:700 17px 'Space Grotesk';margin:0;color:#1C1B2E">Your tournaments</h2><button onClick="{{ goTour }}" style="border:none;background:none;font:700 12.5px 'Plus Jakarta Sans';color:#6D70D6;cursor:pointer">Browse all →</button></div>
+        <div style="display:grid;grid-template-columns:{{ tourGrid }};gap:14px;margin-bottom:24px">
+          <sc-for list="{{ joinedTournaments }}" as="t" hint-placeholder-count="3">
+            <div onClick="{{ goTour }}" style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:18px;box-shadow:0 2px 12px rgba(30,27,75,.04);cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:14px" style-hover="border-color:#C9C3EE;transform:translateY(-2px)">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:46px;height:46px;border-radius:14px;background:{{ t.iconBg }};display:grid;place-items:center;flex:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v3a6 6 0 0 1-12 0z"/><path d="M9 20h6M12 13v7"/></svg></div>
+                <div style="min-width:0;flex:1"><div style="font:700 14.5px 'Plus Jakarta Sans';color:#1C1B2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.name }}</div><div style="font:600 11.5px 'Plus Jakarta Sans';color:#9B99B4">{{ t.meta }}</div></div>
+                <span style="{{ t.statusStyle }}">{{ t.status }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="flex:1;height:7px;border-radius:99px;background:#EEF0FB;overflow:hidden"><div style="{{ t.barStyle }}"></div></div>
+                <span style="font:700 11px 'Plus Jakarta Sans';color:#7A7893">{{ t.stage }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:9px;padding-top:12px;border-top:1px solid #F2F0FA">
+                <div style="display:flex;align-items:center;gap:7px;padding:5px 11px 5px 6px;background:linear-gradient(135deg,#FFF7E6,#FFFBF3);border:1px solid #F1E4C3;border-radius:999px"><div style="width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FBE6A0,#E9B949 68%,#C8971F)"></div><span style="font:700 12.5px 'Space Grotesk';color:#8A6410">{{ t.pts }}</span></div>
+                <span style="font:600 11.5px 'Plus Jakarta Sans';color:#9B99B4">Rank {{ t.rank }} here</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:{{ dashCols }};gap:16px">
+          <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px"><h3 style="font:700 16px 'Space Grotesk';margin:0;color:#1C1B2E">Open betting windows</h3><span style="display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;background:rgba(236,106,94,.12)"><span style="width:6px;height:6px;border-radius:50%;background:#EC6A5E;animation:livepulse 1.8s infinite"></span><span style="font:700 10px 'Plus Jakarta Sans';color:#D8503F">{{ openCount }} LIVE</span></span></div>
+            <sc-for list="{{ openWindows }}" as="w" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #F2F0FA">
+                <div style="min-width:0;flex:1"><div style="font:600 11px 'Plus Jakarta Sans';color:#9B99B4">{{ w.tour }}</div><div style="font:700 13.5px 'Plus Jakarta Sans';color:#1C1B2E;margin-top:1px">{{ w.match }}</div><div style="font:500 11.5px 'Plus Jakarta Sans';color:#B4B2C8;margin-top:2px">{{ w.note }}</div></div>
+                <button onClick="{{ goBet }}" style="flex:none;padding:9px 16px;border:none;border-radius:11px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 12.5px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 5px 13px rgba(137,140,236,.3)">Bet →</button>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+            <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Latest buzz</h3>
+            <sc-for list="{{ announcements }}" as="a" hint-placeholder-count="3">
+              <div style="display:flex;gap:11px;padding:11px 0;border-bottom:1px solid #F2F0FA">
+                <span style="{{ a.tagStyle }}">{{ a.tag }}</span>
+                <div style="min-width:0"><div style="font:700 13px 'Plus Jakarta Sans';color:#1C1B2E">{{ a.title }}</div><div style="font:500 12px 'Plus Jakarta Sans';color:#9B99B4;margin-top:2px">{{ a.time }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ TOURNAMENT ============ -->
+      <sc-if value="{{ isTournament }}" hint-placeholder-val="{{ true }}">
+      <div style="max-width:1180px;margin:0 auto;width:100%">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:18px">
+          <div style="width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,#898CEC,#B1CEF8);display:grid;place-items:center;flex:none;box-shadow:0 6px 16px rgba(137,140,236,.28)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v3a6 6 0 0 1-12 0z"/><path d="M6 5H4v2a3 3 0 0 0 3 3M18 5h2v2a3 3 0 0 1-3 3M9 20h6M12 13v7"/></svg></div>
+          <div style="min-width:0"><h1 style="font:800 24px 'Space Grotesk';margin:0;color:#1C1B2E">Table Tennis Championship</h1><div style="font:600 13px 'Plus Jakarta Sans';color:#9B99B4">8 players · Single elimination · Season 2</div></div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:9px;padding:7px 14px;border-radius:999px;background:linear-gradient(135deg,rgba(236,106,94,.12),rgba(229,131,186,.10));border:1px solid rgba(236,106,94,.22)"><span style="width:8px;height:8px;border-radius:50%;background:#EC6A5E;animation:livepulse 1.8s infinite"></span><span style="font:700 12px 'Plus Jakarta Sans';color:#D8503F">Final · Betting open</span></div>
+        </div>
+
+        <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:22px;-ms-overflow-style:none">
+          <button onClick="{{ tabOverview }}" style="{{ sTabOverview }}">Overview</button>
+          <button onClick="{{ tabBracket }}" style="{{ sTabBracket }}">Bracket</button>
+          <button onClick="{{ tabBetting }}" style="{{ sTabBetting }}">Betting <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EC6A5E;margin-left:4px;vertical-align:middle"></span></button>
+          <button onClick="{{ tabBoardT }}" style="{{ sTabBoard }}">Leaderboard</button>
+          <button onClick="{{ tabInfo }}" style="{{ sTabInfo }}">Info</button>
+        </div>
+
+        <!-- OVERVIEW -->
+        <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:{{ dashCols }};gap:16px">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:linear-gradient(120deg,#7A7DE8,#898CEC 50%,#E583BA);border-radius:22px;padding:22px;box-shadow:0 16px 36px rgba(137,140,236,.26)">
+              <div style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;background:rgba(255,255,255,.20);border-radius:999px;margin-bottom:14px"><span style="width:7px;height:7px;border-radius:50%;background:#fff;animation:glow 1.6s infinite"></span><span style="font:700 11px 'Plus Jakarta Sans';color:#fff">THE FINAL · BETTING OPEN</span></div>
+              <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:11px;flex:1;min-width:130px"><div style="width:46px;height:46px;border-radius:13px;background:#E583BA;color:#fff;font:800 16px 'Space Grotesk';display:grid;place-items:center">PM</div><div><div style="font:700 15px 'Plus Jakarta Sans';color:#fff">Priya Menon</div><div style="font:600 12px 'Plus Jakarta Sans';color:rgba(255,255,255,.75)">Seed #1</div></div></div>
+                <div style="font:700 15px 'Space Grotesk';color:rgba(255,255,255,.85)">VS</div>
+                <div style="display:flex;align-items:center;gap:11px;flex:1;min-width:130px;justify-content:flex-end;text-align:right"><div><div style="font:700 15px 'Plus Jakarta Sans';color:#fff">Anant Sinha</div><div style="font:600 12px 'Plus Jakarta Sans';color:rgba(255,255,255,.75)">Seed #3 · You</div></div><div style="width:46px;height:46px;border-radius:13px;background:#898CEC;border:2px solid #fff;color:#fff;font:800 16px 'Space Grotesk';display:grid;place-items:center">AS</div></div>
+              </div>
+              <button onClick="{{ tabBetting }}" style="margin-top:18px;width:100%;padding:13px;border:none;border-radius:13px;background:#fff;color:#6D70D6;font:700 14px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.12)">Place your bet — win 2 points →</button>
+            </div>
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font:700 16px 'Space Grotesk';margin:0;color:#1C1B2E">Your run to the final</h3><button onClick="{{ tabBracket }}" style="border:none;background:none;font:700 12.5px 'Plus Jakarta Sans';color:#6D70D6;cursor:pointer">Full bracket →</button></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <sc-for list="{{ myRun }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;background:{{ r.bg }};border:1px solid {{ r.border }}">
+                    <span style="{{ r.roundStyle }}">{{ r.round }}</span>
+                    <div style="font:600 13px 'Plus Jakarta Sans';color:#43415C">{{ r.opp }}</div>
+                    <div style="margin-left:auto;font:700 13px 'Plus Jakarta Sans';color:{{ r.resColor }}">{{ r.res }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04);align-self:start">
+            <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Announcements</h3>
+            <sc-for list="{{ announcements }}" as="a" hint-placeholder-count="3">
+              <div style="padding:12px 0;border-bottom:1px solid #F2F0FA">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="{{ a.tagStyle }}">{{ a.tag }}</span><span style="font:500 11px 'Plus Jakarta Sans';color:#B4B2C8">{{ a.time }}</span></div>
+                <div style="font:700 13px 'Plus Jakarta Sans';color:#1C1B2E">{{ a.title }}</div>
+                <div style="font:500 12px 'Plus Jakarta Sans';color:#8B8AA3;margin-top:2px;line-height:1.4">{{ a.body }}</div>
+              </div>
+            </sc-for>
+            <button onClick="{{ goWinners }}" style="margin-top:14px;width:100%;padding:11px;border:1px dashed #D8C4E4;border-radius:12px;background:rgba(229,131,186,.05);color:#C2569A;font:700 12.5px 'Plus Jakarta Sans';cursor:pointer">Preview the winners reveal →</button>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- BRACKET -->
+        <sc-if value="{{ isBracket }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #EDEBF7;border-radius:22px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04);overflow:auto;max-height:74vh">
+          <div style="display:flex;flex-direction:column;align-items:center;min-width:900px;margin:0 auto">
+            <sc-for list="{{ rounds }}" as="round" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="font:700 14px 'Space Grotesk';color:#1C1B2E">{{ round.name }}</span><span style="{{ round.pillStyle }}">{{ round.pill }}</span></div>
+              <div style="display:flex;gap:16px;justify-content:center;flex-wrap:nowrap">
+                <sc-for list="{{ round.matches }}" as="m" hint-placeholder-count="2">
+                  <div style="width:212px;flex:none;display:flex;flex-direction:column;align-items:center;gap:8px">
+                    <span style="{{ m.statusStyle }}">{{ m.statusLabel }}</span>
+                    <div style="{{ m.cardStyle }};width:100%">
+                      <div style="{{ m.p1.rowStyle }}"><div style="{{ m.p1.avStyle }}">{{ m.p1.ini }}</div><div style="{{ m.p1.nameStyle }}">{{ m.p1.name }}</div><div style="{{ m.p1.scoreStyle }}">{{ m.p1.score }}</div></div>
+                      <div style="{{ m.p2.rowStyle }}"><div style="{{ m.p2.avStyle }}">{{ m.p2.ini }}</div><div style="{{ m.p2.nameStyle }}">{{ m.p2.name }}</div><div style="{{ m.p2.scoreStyle }}">{{ m.p2.score }}</div></div>
+                      <sc-if value="{{ m.betOpen }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tabBetting }}" style="margin-top:10px;width:100%;padding:9px;border:none;border-radius:10px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 12px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 5px 13px rgba(137,140,236,.3)">Place bet →</button></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ round.notLast }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 20px">
+                  <div style="width:2px;height:18px;background:#DAD4F0"></div>
+                  <div style="width:30px;height:30px;border-radius:50%;background:rgba(137,140,236,.12);display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6D70D6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+                  <div style="font:700 10px 'Plus Jakarta Sans';color:#A6A4BC;margin-top:5px;letter-spacing:.05em;text-transform:uppercase">Winners advance</div>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- BETTING (HERO) -->
+        <sc-if value="{{ isBetting }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:{{ betCols }};gap:16px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:22px;padding:4px;box-shadow:0 8px 26px rgba(137,140,236,.10);overflow:hidden">
+              <div style="border-radius:19px;background:linear-gradient(160deg,#FBFAFF,#F4F2FE);padding:20px">
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px"><span style="width:8px;height:8px;border-radius:50%;background:#EC6A5E;animation:livepulse 1.8s infinite"></span><span style="font:700 12px 'Plus Jakarta Sans';color:#D8503F;letter-spacing:.03em">OPEN NOW · THE FINAL</span><span style="margin-left:auto;font:600 12px 'Plus Jakarta Sans';color:#9B99B4">Locks at first serve</span></div>
+                <div style="display:flex;align-items:stretch;gap:12px">
+                  <div onClick="{{ pickPriya }}" style="{{ tilePriya }}"><div style="width:56px;height:56px;border-radius:16px;background:#E583BA;color:#fff;font:800 20px 'Space Grotesk';display:grid;place-items:center">PM</div><div style="font:700 15px 'Plus Jakarta Sans';color:#1C1B2E">Priya Menon</div><div style="font:600 12px 'Plus Jakarta Sans';color:#9B99B4">Seed #1 · Champion odds</div><sc-if value="{{ priyaPicked }}" hint-placeholder-val="{{ false }}"><div style="font:700 11px 'Plus Jakarta Sans';color:#fff;background:#898CEC;padding:4px 12px;border-radius:999px">✓ Your pick</div></sc-if></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;flex:none"><span style="font:700 13px 'Space Grotesk';color:#C3BEE0">VS</span></div>
+                  <div onClick="{{ pickAnant }}" style="{{ tileAnant }}"><div style="width:56px;height:56px;border-radius:16px;background:#898CEC;color:#fff;font:800 20px 'Space Grotesk';display:grid;place-items:center">AS</div><div style="font:700 15px 'Plus Jakarta Sans';color:#1C1B2E">Anant Sinha</div><div style="font:600 12px 'Plus Jakarta Sans';color:#9B99B4">Seed #3 · That's you</div><sc-if value="{{ anantPicked }}" hint-placeholder-val="{{ false }}"><div style="font:700 11px 'Plus Jakarta Sans';color:#fff;background:#898CEC;padding:4px 12px;border-radius:999px">✓ Your pick</div></sc-if></div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid #ECEAF6">
+                  <div style="display:flex;align-items:center;gap:8px"><div style="width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FBE6A0,#E9B949 68%,#C8971F)"></div><span style="font:600 13px 'Plus Jakarta Sans';color:#7A7893">Stake <b style="color:#1C1B2E">1 point</b> · win <b style="color:#3FBF87">+2</b> · miss <b style="color:#EC6A5E">−1</b></span></div>
+                  <button onClick="{{ openModal }}" style="{{ lockStyle }}">{{ lockLabel }}</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Your betting history</h3>
+              <sc-for list="{{ betHistory }}" as="b" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #F2F0FA">
+                  <div style="min-width:0;flex:1"><div style="font:700 13px 'Plus Jakarta Sans';color:#1C1B2E">{{ b.label }}</div><div style="font:600 12px 'Plus Jakarta Sans';color:#9B99B4">Backed {{ b.pick }}</div></div>
+                  <span style="{{ b.chipStyle }}">{{ b.chip }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:linear-gradient(160deg,#FFF7E6,#FFFBF3);border:1px solid #F1E4C3;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(233,185,73,.10)">
+              <div style="font:600 12px 'Plus Jakarta Sans';color:#B08A2E;margin-bottom:8px">Betting wallet</div>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FBE6A0,#E9B949 68%,#C8971F);box-shadow:inset 0 1px 2px rgba(255,255,255,.7)"></div><div><div style="font:700 30px 'Space Grotesk';color:#8A6410;line-height:1">{{ points }}</div><div style="font:600 11px 'Plus Jakarta Sans';color:#B08A2E">points to spend</div></div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="background:rgba(255,255,255,.6);border-radius:12px;padding:10px 12px"><div style="font:700 18px 'Space Grotesk';color:#3FBF87">4</div><div style="font:600 11px 'Plus Jakarta Sans';color:#8B8AA3">correct</div></div>
+                <div style="background:rgba(255,255,255,.6);border-radius:12px;padding:10px 12px"><div style="font:700 18px 'Space Grotesk';color:#EC6A5E">1</div><div style="font:600 11px 'Plus Jakarta Sans';color:#8B8AA3">missed</div></div>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h4 style="font:700 14px 'Space Grotesk';margin:0 0 10px;color:#1C1B2E">How points work</h4>
+              <div style="display:flex;flex-direction:column;gap:9px;font:500 12.5px 'Plus Jakarta Sans';color:#7A7893;line-height:1.45">
+                <div style="display:flex;gap:8px"><span style="color:#898CEC;font-weight:700">·</span>You start with <b style="color:#1C1B2E">rounds + 5</b> points on entry.</div>
+                <div style="display:flex;gap:8px"><span style="color:#898CEC;font-weight:700">·</span>Each bet costs <b style="color:#1C1B2E">1 point</b>.</div>
+                <div style="display:flex;gap:8px"><span style="color:#3FBF87;font-weight:700">·</span>Correct prediction returns <b style="color:#3FBF87">+2</b>.</div>
+                <div style="display:flex;gap:8px"><span style="color:#EC6A5E;font-weight:700">·</span>Wrong prediction loses <b style="color:#EC6A5E">1</b>.</div>
+                <div style="display:flex;gap:8px"><span style="color:#898CEC;font-weight:700">·</span>One bet per match. No editing. No hedging.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- LEADERBOARD -->
+        <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #EDEBF7;border-radius:22px;padding:22px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+          <div style="display:flex;align-items:center;gap:8px;padding:5px;background:#F4F2FE;border-radius:13px;width:fit-content;margin-bottom:18px">
+            <button onClick="{{ lbBettors }}" style="{{ segBettors }}">Bettors</button>
+            <button onClick="{{ lbPlayers }}" style="{{ segPlayers }}">Players</button>
+          </div>
+          <sc-if value="{{ isLbBettors }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:grid;grid-template-columns:{{ lbGrid }};gap:8px;padding:0 14px 8px;font:700 11px 'Plus Jakarta Sans';color:#B4B2C8;text-transform:uppercase;letter-spacing:.04em"><div>Rank</div><div>Bettor</div><div style="text-align:center">Points</div><div style="text-align:center">Acc</div><div style="text-align:right">Move</div></div>
+            <sc-for list="{{ bettors }}" as="u" hint-placeholder-count="6">
+              <div style="{{ u.rowStyle }}">
+                <div style="{{ u.rankStyle }}">{{ u.rank }}</div>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="{{ u.avStyle }}">{{ u.ini }}</div><div style="font:700 13.5px 'Plus Jakarta Sans';color:#1C1B2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.name }}</div></div>
+                <div style="text-align:center;font:700 15px 'Space Grotesk';color:#8A6410">{{ u.pts }}</div>
+                <div style="text-align:center;font:600 13px 'Plus Jakarta Sans';color:#7A7893">{{ u.acc }}%</div>
+                <div style="text-align:right;font:700 12.5px 'Plus Jakarta Sans';color:{{ u.moveColor }}">{{ u.move }}</div>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+          <sc-if value="{{ isLbPlayers }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ standings }}" as="p" hint-placeholder-count="8">
+              <div style="{{ p.rowStyle }}">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1"><div style="{{ p.avStyle }}">{{ p.ini }}</div><div style="min-width:0"><div style="font:700 13.5px 'Plus Jakarta Sans';color:#1C1B2E">{{ p.name }}</div><div style="font:600 11.5px 'Plus Jakarta Sans';color:#9B99B4">Seed #{{ p.seed }}</div></div></div>
+                <span style="{{ p.chipStyle }}">{{ p.reached }}</span>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- INFO -->
+        <sc-if value="{{ isInfo }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:{{ dashCols }};gap:16px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:22px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Tournament rules</h3>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ tourRules }}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:11px;align-items:flex-start"><span style="width:20px;height:20px;border-radius:6px;background:rgba(137,140,236,.12);color:#6D70D6;font:700 11px 'Space Grotesk';display:grid;place-items:center;flex:none;margin-top:1px">{{ r.n }}</span><span style="font:500 13.5px 'Plus Jakarta Sans';color:#5B596F;line-height:1.45">{{ r.text }}</span></div></sc-for>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:22px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Betting rules</h3>
+              <div style="display:flex;flex-direction:column;gap:11px">
+                <sc-for list="{{ bettingRules }}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:11px;align-items:flex-start"><span style="color:#E583BA;font-weight:800;margin-top:-2px">·</span><span style="font:500 13.5px 'Plus Jakarta Sans';color:#5B596F;line-height:1.45">{{ r.text }}</span></div></sc-for>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:22px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+            <h3 style="font:700 16px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Participants <span style="font:600 13px 'Plus Jakarta Sans';color:#B4B2C8">· 8</span></h3>
+            <sc-for list="{{ standings }}" as="p" hint-placeholder-count="8">
+              <div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #F5F3FB"><div style="{{ p.avStyle }}">{{ p.ini }}</div><div style="font:600 13px 'Plus Jakarta Sans';color:#43415C">{{ p.name }}</div><span style="margin-left:auto;font:600 11.5px 'Plus Jakarta Sans';color:#B4B2C8">#{{ p.seed }}</span></div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+
+      <!-- ============ WINNERS ============ -->
+      <sc-if value="{{ isWinners }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:960px;margin:0 auto;width:100%;position:relative">
+        <div style="position:absolute;inset:-40px 0 auto;height:280px;background:radial-gradient(600px 240px at 50% 0,rgba(229,131,186,.28),transparent 65%);pointer-events:none"></div>
+        <div style="text-align:center;position:relative;margin-bottom:28px">
+          <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 15px;border-radius:999px;background:linear-gradient(135deg,#898CEC,#E583BA);color:#fff;font:700 12px 'Plus Jakarta Sans';margin-bottom:14px;box-shadow:0 8px 20px rgba(137,140,236,.3)">TOURNAMENT COMPLETE</div>
+          <h1 style="font:800 30px 'Space Grotesk';margin:0 0 6px;color:#1C1B2E">Table Tennis Championship</h1>
+          <p style="margin:0;font:500 14px 'Plus Jakarta Sans';color:#7A7893">Season 2 · Here's how it finished</p>
+        </div>
+
+        <div style="display:flex;align-items:flex-end;justify-content:center;gap:14px;margin-bottom:26px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;order:1">
+            <div style="width:66px;height:66px;border-radius:20px;background:#5AA9E6;color:#fff;font:800 22px 'Space Grotesk';display:grid;place-items:center;box-shadow:0 8px 20px rgba(90,169,230,.3)">RV</div>
+            <div style="text-align:center"><div style="font:700 14px 'Plus Jakarta Sans';color:#1C1B2E">Rahul Verma</div><div style="font:600 11px 'Plus Jakarta Sans';color:#9B99B4">Semifinalist</div></div>
+            <div style="width:120px;height:88px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,#CD7F32,#B0692A);display:grid;place-items:center;color:#fff;font:800 30px 'Space Grotesk'">3</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;order:2;animation:floaty 3.4s ease-in-out infinite">
+            <svg width="34" height="30" viewBox="0 0 24 24" fill="#E9B949" style="filter:drop-shadow(0 3px 6px rgba(233,185,73,.5))"><path d="M5 16L3 6l5.5 4L12 4l3.5 6L21 6l-2 10z"/><rect x="5" y="17" width="14" height="3" rx="1"/></svg>
+            <div style="width:78px;height:78px;border-radius:22px;background:linear-gradient(135deg,#E583BA,#898CEC);border:3px solid #E9B949;color:#fff;font:800 26px 'Space Grotesk';display:grid;place-items:center;box-shadow:0 12px 28px rgba(229,131,186,.4)">PM</div>
+            <div style="text-align:center"><div style="font:800 16px 'Plus Jakarta Sans';color:#1C1B2E">Priya Menon</div><div style="font:700 11px 'Plus Jakarta Sans';color:#C2569A">CHAMPION</div></div>
+            <div style="width:130px;height:128px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,#F0C63E,#E9B949);display:grid;place-items:center;color:#fff;font:800 40px 'Space Grotesk';box-shadow:inset 0 2px 8px rgba(255,255,255,.4)">1</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;order:3">
+            <div style="width:66px;height:66px;border-radius:20px;background:#898CEC;color:#fff;font:800 22px 'Space Grotesk';display:grid;place-items:center;box-shadow:0 8px 20px rgba(137,140,236,.3)">AS</div>
+            <div style="text-align:center"><div style="font:700 14px 'Plus Jakarta Sans';color:#1C1B2E">Anant Sinha</div><div style="font:600 11px 'Plus Jakarta Sans';color:#9B99B4">Runner-up · You</div></div>
+            <div style="width:120px;height:104px;border-radius:16px 16px 0 0;background:linear-gradient(180deg,#C7CDD6,#A9B0BC);display:grid;place-items:center;color:#fff;font:800 34px 'Space Grotesk'">2</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:{{ dashCols }};gap:16px">
+          <div style="background:linear-gradient(120deg,#7A7DE8,#E583BA);border-radius:22px;padding:2px;box-shadow:0 14px 34px rgba(137,140,236,.26)">
+            <div style="background:linear-gradient(120deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border-radius:20px;padding:22px;display:flex;align-items:center;gap:16px">
+              <div style="width:60px;height:60px;border-radius:18px;background:#E9A23B;color:#fff;font:800 20px 'Space Grotesk';display:grid;place-items:center;flex:none;border:2px solid rgba(255,255,255,.6)">DP</div>
+              <div style="flex:1"><div style="font:700 11px 'Plus Jakarta Sans';color:rgba(255,255,255,.85);letter-spacing:.04em">🏅 BEST BETTOR</div><div style="font:800 19px 'Plus Jakarta Sans';color:#fff">Dev Patel</div><div style="font:600 12px 'Plus Jakarta Sans';color:rgba(255,255,255,.8)">14 points · 75% accuracy · 6 correct calls</div></div>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04);display:flex;flex-direction:column;justify-content:center;gap:8px">
+            <div style="font:700 13px 'Space Grotesk';color:#1C1B2E">Your finish</div>
+            <div style="font:500 13px 'Plus Jakarta Sans';color:#7A7893;line-height:1.5">Runner-up on the table and <b style="color:#6D70D6">#2 on the betting board</b>. One point off the podium — the rematch is yours to take.</div>
+            <button onClick="{{ goTour }}" style="margin-top:6px;align-self:flex-start;padding:10px 18px;border:none;border-radius:12px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 13px 'Plus Jakarta Sans';cursor:pointer">Back to tournament</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ============ ADMIN ============ -->
+      <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1180px;margin:0 auto;width:100%">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:22px">
+          <div><h1 style="font:800 24px 'Space Grotesk';margin:0;color:#1C1B2E">Admin console</h1><div style="font:600 13px 'Plus Jakarta Sans';color:#9B99B4">Table Tennis Championship · Season 2</div></div>
+          <div style="margin-left:auto;display:flex;gap:9px"><button style="padding:10px 16px;border:1px solid #E4E0F2;border-radius:12px;background:#fff;color:#6D70D6;font:700 13px 'Plus Jakarta Sans';cursor:pointer">Export CSV</button><button style="padding:10px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 13px 'Plus Jakarta Sans';cursor:pointer">Publish results</button></div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04);margin-bottom:16px;overflow-x:auto">
+          <div style="font:700 13px 'Space Grotesk';color:#1C1B2E;margin-bottom:16px">Lifecycle</div>
+          <div style="display:flex;align-items:center;gap:0;min-width:680px">
+            <sc-for list="{{ lifecycle }}" as="s" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;flex:1">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:7px;flex:none"><div style="{{ s.dotStyle }}">{{ s.mark }}</div><span style="{{ s.labelStyle }}">{{ s.label }}</span></div>
+                <sc-if value="{{ s.line }}" hint-placeholder-val="{{ true }}"><div style="{{ s.lineStyle }}"></div></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:{{ dashCols }};gap:16px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h3 style="font:700 15px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Quick actions</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+                <sc-for list="{{ adminActions }}" as="a" hint-placeholder-count="6">
+                  <button style="{{ a.style }}"><span style="{{ a.iconWrap }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ a.icon }}"/></svg></span>{{ a.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><h3 style="font:700 15px 'Space Grotesk';margin:0;color:#1C1B2E">Participants</h3><button style="padding:7px 13px;border:1px solid #E4E0F2;border-radius:10px;background:#fff;color:#6D70D6;font:700 12px 'Plus Jakarta Sans';cursor:pointer">Import CSV</button></div>
+              <sc-for list="{{ standings }}" as="p" hint-placeholder-count="8">
+                <div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #F5F3FB"><div style="{{ p.avStyle }}">{{ p.ini }}</div><div style="min-width:0"><div style="font:600 13px 'Plus Jakarta Sans';color:#43415C">{{ p.name }}</div><div style="font:600 11px 'Plus Jakarta Sans';color:#B4B2C8">Seed #{{ p.seed }} · {{ p.reached }}</div></div><button style="margin-left:auto;padding:5px 10px;border:1px solid #F0DDE6;border-radius:8px;background:#FDF6FA;color:#C2569A;font:600 11px 'Plus Jakarta Sans';cursor:pointer">Disqualify</button></div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#fff;border:1px solid #EDEBF7;border-radius:20px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04)">
+              <h3 style="font:700 15px 'Space Grotesk';margin:0 0 14px;color:#1C1B2E">Betting stats · The Final</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+                <div style="background:#F7F6FD;border-radius:12px;padding:12px"><div style="font:700 22px 'Space Grotesk';color:#6D70D6">47</div><div style="font:600 11px 'Plus Jakarta Sans';color:#8B8AA3">bets placed</div></div>
+                <div style="background:#F7F6FD;border-radius:12px;padding:12px"><div style="font:700 22px 'Space Grotesk';color:#8A6410">47</div><div style="font:600 11px 'Plus Jakarta Sans';color:#8B8AA3">points in play</div></div>
+              </div>
+              <div style="font:600 12px 'Plus Jakarta Sans';color:#8B8AA3;margin-bottom:8px">Who the crowd backs</div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <div><div style="display:flex;justify-content:space-between;font:700 12px 'Plus Jakarta Sans';color:#43415C;margin-bottom:4px"><span>Priya Menon</span><span>62%</span></div><div style="height:8px;border-radius:99px;background:#F1EFFA;overflow:hidden"><div style="width:62%;height:100%;background:#E583BA"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;font:700 12px 'Plus Jakarta Sans';color:#43415C;margin-bottom:4px"><span>Anant Sinha</span><span>38%</span></div><div style="height:8px;border-radius:99px;background:#F1EFFA;overflow:hidden"><div style="width:38%;height:100%;background:#898CEC"></div></div></div>
+              </div>
+            </div>
+            <div style="background:linear-gradient(160deg,#FEF4F3,#FDF7FB);border:1px solid #F5D9D5;border-radius:20px;padding:20px">
+              <h3 style="font:700 14px 'Space Grotesk';margin:0 0 4px;color:#C4453A">Developer zone</h3>
+              <p style="font:500 12px 'Plus Jakarta Sans';color:#B07A74;margin:0 0 14px;line-height:1.4">Destructive actions. Logged to the audit trail.</p>
+              <div style="display:flex;flex-wrap:wrap;gap:9px">
+                <button style="padding:9px 15px;border:1px solid #EEC7C1;border-radius:11px;background:#fff;color:#C4453A;font:700 12px 'Plus Jakarta Sans';cursor:pointer">Reset tournament</button>
+                <button style="padding:9px 15px;border:none;border-radius:11px;background:#D8503F;color:#fff;font:700 12px 'Plus Jakarta Sans';cursor:pointer">Delete</button>
+                <button style="padding:9px 15px;border:1px solid #EEC7C1;border-radius:11px;background:#fff;color:#C4453A;font:700 12px 'Plus Jakarta Sans';cursor:pointer">View audit logs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+
+    </main>
+  </div>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+  <nav style="position:fixed;bottom:0;left:0;right:0;z-index:40;display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-top:1px solid #ECE9F7;padding:8px 8px calc(8px + env(safe-area-inset-bottom))">
+    <button onClick="{{ goDash }}" style="{{ mnavDash }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span style="font:600 10px 'Plus Jakarta Sans'">Home</span></button>
+    <button onClick="{{ goTour }}" style="{{ mnavPlay }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v3a6 6 0 0 1-12 0z"/><path d="M9 20h6M12 13v7"/></svg><span style="font:600 10px 'Plus Jakarta Sans'">Play</span></button>
+    <button onClick="{{ goBoard }}" style="{{ mnavBoard }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M20 20H2"/></svg><span style="font:600 10px 'Plus Jakarta Sans'">Ranks</span></button>
+    <button onClick="{{ goAdmin }}" style="{{ mnavAdmin }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg><span style="font:600 10px 'Plus Jakarta Sans'">Admin</span></button>
+  </nav>
+  </sc-if>
+
+  <!-- CONFIRM MODAL -->
+  <sc-if value="{{ betModal }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:60;background:rgba(28,27,46,.5);backdrop-filter:blur(4px);display:grid;place-items:center;padding:20px" onClick="{{ cancel }}">
+    <div style="background:#fff;border-radius:24px;padding:26px;max-width:400px;width:100%;box-shadow:0 30px 70px rgba(28,27,46,.4);animation:slideup .25s ease">
+      <div style="width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FBE6A0,#E9B949 68%,#C8971F);margin:0 auto 16px;box-shadow:inset 0 1px 3px rgba(255,255,255,.7),0 4px 12px rgba(200,151,31,.35);display:grid;place-items:center"><span style="font:700 20px 'Space Grotesk';color:#8A6410">1</span></div>
+      <h3 style="font:700 20px 'Space Grotesk';margin:0 0 6px;text-align:center;color:#1C1B2E">Lock your bet?</h3>
+      <p style="font:500 13.5px 'Plus Jakarta Sans';color:#7A7893;text-align:center;margin:0 0 18px;line-height:1.5">You're backing <b style="color:#6D70D6">{{ betPick }}</b> to win the Final. This costs <b style="color:#1C1B2E">1 point</b> and can't be changed. Win and you get <b style="color:#3FBF87">2 back</b>.</p>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ cancel }}" style="flex:1;padding:13px;border:1px solid #E4E0F2;border-radius:13px;background:#fff;color:#5B596F;font:700 14px 'Plus Jakarta Sans';cursor:pointer">Cancel</button>
+        <button onClick="{{ confirm }}" style="flex:1.4;padding:13px;border:none;border-radius:13px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 14px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 8px 18px rgba(137,140,236,.35)">Lock it in</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- TOAST + CONFETTI -->
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));z-index:70;transform:translateX(-50%);animation:slideup .3s ease">
+    <sc-if value="{{ burst }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:50%;top:-6px;width:0;height:0">
+        <sc-for list="{{ burstDots }}" as="d" hint-placeholder-count="0"><span style="{{ d.style }}"></span></sc-for>
+      </div>
+    </sc-if>
+    <div style="display:flex;align-items:center;gap:12px;background:#1C1B2E;color:#fff;padding:14px 20px;border-radius:16px;box-shadow:0 16px 40px rgba(28,27,46,.4);max-width:90vw">
+      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3FBF87,#5CC7B0);display:grid;place-items:center;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+      <span style="font:600 13.5px 'Plus Jakarta Sans';line-height:1.35">{{ toast }}</span>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;820px&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dashboard&quot;,&quot;tournament&quot;,&quot;winners&quot;,&quot;admin&quot;],&quot;default&quot;:&quot;tournament&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;celebrations&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.state = { screen: props.startScreen || 'tournament', tab:'overview', lb:'bettors', betPick:null, betPlaced:false, betModal:false, toast:null, burst:false, isMobile:false };
+    this._onResize = this._onResize.bind(this);
+  }
+  componentDidMount(){ this._onResize(); window.addEventListener('resize', this._onResize); }
+  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); clearTimeout(this._t); }
+  _onResize(){ const m = window.innerWidth < 860; if(m !== this.state.isMobile) this.setState({isMobile:m}); }
+
+  openT(tab){ this.setState({ screen:'tournament', tab: tab||'overview' }); }
+  confirmBet(){
+    const cele = this.props.celebrations !== false;
+    this.setState({ betPlaced:true, betModal:false, points:11, toast:"Locked in on "+this.state.betPick+" — win 2 points if they take it!", burst:cele });
+    clearTimeout(this._t);
+    this._t = setTimeout(()=>this.setState({toast:null, burst:false}), 4000);
+  }
+
+  av(c,s,r){ return "width:"+s+"px;height:"+s+"px;border-radius:"+r+"px;background:"+c+";color:#fff;font:800 "+Math.round(s*0.4)+"px 'Space Grotesk';display:grid;place-items:center;flex:none;box-shadow:0 2px 6px "+c+"55"; }
+
+  navStyle(active){
+    const base = "display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:13px;font:600 14px 'Plus Jakarta Sans';cursor:pointer;border:none;width:100%;text-align:left;transition:all .15s;";
+    return base + (active ? "background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;box-shadow:0 6px 16px rgba(137,140,236,.32)" : "background:transparent;color:#4A4863");
+  }
+  mnav(active){
+    const base = "flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border:none;background:none;cursor:pointer;transition:color .15s;border-radius:12px;";
+    return base + (active ? "color:#6D70D6" : "color:#A6A4BC");
+  }
+  seg(active){
+    const base = "padding:8px 18px;border:none;border-radius:10px;font:700 13px 'Plus Jakarta Sans';cursor:pointer;transition:all .15s;";
+    return base + (active ? "background:#fff;color:#6D70D6;box-shadow:0 2px 6px rgba(30,27,75,.08)" : "background:transparent;color:#8B8AA3");
+  }
+  subtab(active){
+    const base = "flex:none;padding:9px 17px;border:1px solid;border-radius:12px;font:700 13px 'Plus Jakarta Sans';cursor:pointer;transition:all .15s;white-space:nowrap;";
+    return base + (active ? "background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;border-color:transparent;box-shadow:0 5px 14px rgba(137,140,236,.3)" : "background:#fff;color:#5B596F;border-color:#EAE7F5");
+  }
+
+  buildMatch(raw){
+    const P = this.players;
+    const mk = (key, side, isOpen) => {
+      const p = P[key]; const win = raw.winner === side;
+      let rowStyle, nameStyle, scoreStyle, score;
+      const avStyle = this.av(p.color, 34, 10);
+      if(isOpen){
+        rowStyle = "display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;background:rgba(137,140,236,.05)";
+        nameStyle = "font:700 13px 'Plus Jakarta Sans';color:#1C1B2E;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+        scoreStyle = "font:700 13px 'Space Grotesk';color:#C3BEE0";
+        score = "–";
+      } else if(win){
+        rowStyle = "display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;background:linear-gradient(90deg,rgba(137,140,236,.14),rgba(137,140,236,.03))";
+        nameStyle = "font:700 13px 'Plus Jakarta Sans';color:#1C1B2E;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+        scoreStyle = "font:700 14px 'Space Grotesk';color:#6D70D6";
+        score = String(raw[side+'s']);
+      } else {
+        rowStyle = "display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;opacity:.62";
+        nameStyle = "font:600 13px 'Plus Jakarta Sans';color:#8B8AA3;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis";
+        scoreStyle = "font:700 14px 'Space Grotesk';color:#B4B2C8";
+        score = String(raw[side+'s']);
+      }
+      return { name:p.name, ini:p.ini, avStyle, rowStyle, nameStyle, scoreStyle, score };
+    };
+    const isOpen = raw.status === 'open';
+    let statusLabel, statusStyle;
+    if(isOpen){ statusLabel = "● Betting window open"; statusStyle = "font:700 11px 'Plus Jakarta Sans';color:#D8503F;padding:4px 11px;border-radius:99px;background:rgba(236,106,94,.12)"; }
+    else { statusLabel = "Concluded"; statusStyle = "font:700 11px 'Plus Jakarta Sans';color:#8B8AA3;padding:4px 11px;border-radius:99px;background:#F2F0FA"; }
+    return {
+      p1: mk(raw.p1, 'p1', isOpen), p2: mk(raw.p2, 'p2', isOpen),
+      betOpen:isOpen, statusLabel, statusStyle,
+      cardStyle: "background:"+(isOpen?"linear-gradient(160deg,#FBFAFF,#F5F2FE)":"#fff")+";border:1px solid "+(isOpen?"#C9C3EE":"#EDEBF7")+";border-radius:15px;padding:11px;"+(isOpen?"box-shadow:0 6px 18px rgba(137,140,236,.14)":"box-shadow:0 1px 4px rgba(30,27,75,.04)")
+    };
+  }
+
+  renderVals(){
+    const s = this.state;
+    const points = s.betPlaced ? 11 : 12;
+    this.players = {
+      anant:{name:'Anant Sinha',ini:'AS',color:'#898CEC'}, priya:{name:'Priya Menon',ini:'PM',color:'#E583BA'},
+      rahul:{name:'Rahul Verma',ini:'RV',color:'#5AA9E6'}, sara:{name:'Sara Khan',ini:'SK',color:'#57B368'},
+      dev:{name:'Dev Patel',ini:'DP',color:'#E9A23B'}, neha:{name:'Neha Reddy',ini:'NR',color:'#A06CD5'},
+      arjun:{name:'Arjun Nair',ini:'AN',color:'#EC6A5E'}, kavya:{name:'Kavya Iyer',ini:'KI',color:'#3FBF9F'}
+    };
+    const rounds = [
+      { name:'Quarterfinals', pill:'Done', pillStyle:"font:700 10px 'Plus Jakarta Sans';color:#8B8AA3;padding:2px 8px;border-radius:99px;background:#F2F0FA", matches:[
+        this.buildMatch({p1:'priya',p2:'kavya',p1s:3,p2s:0,winner:'p1',status:'done'}),
+        this.buildMatch({p1:'sara',p2:'dev',p1s:1,p2s:3,winner:'p2',status:'done'}),
+        this.buildMatch({p1:'rahul',p2:'arjun',p1s:3,p2s:2,winner:'p1',status:'done'}),
+        this.buildMatch({p1:'anant',p2:'neha',p1s:3,p2s:1,winner:'p1',status:'done'})
+      ]},
+      { name:'Semifinals', pill:'Done', pillStyle:"font:700 10px 'Plus Jakarta Sans';color:#8B8AA3;padding:2px 8px;border-radius:99px;background:#F2F0FA", matches:[
+        this.buildMatch({p1:'priya',p2:'dev',p1s:3,p2s:1,winner:'p1',status:'done'}),
+        this.buildMatch({p1:'rahul',p2:'anant',p1s:2,p2s:3,winner:'p2',status:'done'})
+      ]},
+      { name:'Final', pill:'Live', pillStyle:"font:700 10px 'Plus Jakarta Sans';color:#D8503F;padding:2px 8px;border-radius:99px;background:rgba(236,106,94,.12)", matches:[
+        this.buildMatch({p1:'priya',p2:'anant',winner:null,status:'open'})
+      ]}
+    ].map((r,i,a)=>({...r,notLast:i<a.length-1}));
+
+    const tStatus = (key)=> key==='live'
+      ? {status:'Live', statusStyle:"font:700 10px 'Plus Jakarta Sans';color:#D8503F;background:rgba(236,106,94,.12);padding:4px 10px;border-radius:99px;flex:none"}
+      : key==='reg'
+      ? {status:'Registering', statusStyle:"font:700 10px 'Plus Jakarta Sans';color:#6D70D6;background:rgba(137,140,236,.13);padding:4px 10px;border-radius:99px;flex:none"}
+      : {status:'Done', statusStyle:"font:700 10px 'Plus Jakarta Sans';color:#8B8AA3;background:#F2F0FA;padding:4px 10px;border-radius:99px;flex:none"};
+    const joinedTournaments = [
+      {name:'Table Tennis Championship', meta:'8 players · Single elim', st:'live', pct:88, stage:'Final', pts:points, rank:'#2', iconBg:'linear-gradient(135deg,#898CEC,#B1CEF8)'},
+      {name:'Carrom Cup', meta:'12 players · Group stage', st:'live', pct:45, stage:'Round 2', pts:9, rank:'#5', iconBg:'linear-gradient(135deg,#E583BA,#F0B8DA)'},
+      {name:'Chess Blitz Open', meta:'16 players · Registration', st:'reg', pct:0, stage:'Starts soon', pts:0, rank:'—', iconBg:'linear-gradient(135deg,#5AA9E6,#B1CEF8)'}
+    ].map(t=>({...t, ...tStatus(t.st), barStyle:"width:"+t.pct+"%;height:100%;background:linear-gradient(90deg,#898CEC,#E583BA)"}));
+    const openWindows = [
+      {tour:'Table Tennis Championship', match:'The Final · Priya vs Anant', note:'47 bets placed · closes at first serve'},
+      {tour:'Carrom Cup', match:'Semifinal · Rahul vs Dev', note:'Betting window open'}
+    ];
+    const openCount = openWindows.length;
+    const tourGrid = s.isMobile ? '1fr' : 'repeat(auto-fill,minmax(280px,1fr))';
+
+    const myRun = [
+      {round:'QF', roundStyle:"font:700 10px 'Space Grotesk';color:#6D70D6;background:rgba(137,140,236,.12);padding:3px 8px;border-radius:7px;flex:none", opp:'vs Neha Reddy', res:'Won 3–1', resColor:'#3FBF87', bg:'#F8FAF9', border:'#E4F0EA'},
+      {round:'SF', roundStyle:"font:700 10px 'Space Grotesk';color:#6D70D6;background:rgba(137,140,236,.12);padding:3px 8px;border-radius:7px;flex:none", opp:'vs Rahul Verma', res:'Won 3–2', resColor:'#3FBF87', bg:'#F8FAF9', border:'#E4F0EA'},
+      {round:'F', roundStyle:"font:700 10px 'Space Grotesk';color:#fff;background:#EC6A5E;padding:3px 8px;border-radius:7px;flex:none", opp:'vs Priya Menon', res:'Upcoming', resColor:'#D8503F', bg:'linear-gradient(90deg,rgba(236,106,94,.07),transparent)', border:'#F3D6D1'}
+    ];
+
+    const tag = (t)=>({ Match:"#6D70D6,rgba(137,140,236,.12)", Betting:"#C2569A,rgba(229,131,186,.13)", Results:"#2C9E6E,rgba(63,191,135,.14)" }[t]);
+    const announcements = [
+      {tag:'Match', title:'The Final is set — Priya vs Anant', body:'Two top seeds standing. Betting is open until the first serve.', time:'2h ago'},
+      {tag:'Betting', title:'Betting open for the Final', body:'Lock 1 point, win 2 back if you call it right.', time:'3h ago'},
+      {tag:'Results', title:'Semifinal results are in', body:'Priya and Anant advance to the title match.', time:'1d ago'}
+    ].map(a=>{ const c=tag(a.tag).split(','); return {...a, tagStyle:"font:700 10px 'Plus Jakarta Sans';color:"+c[0]+";background:"+c[1]+";padding:3px 9px;border-radius:7px;flex:none;height:fit-content"}; });
+
+    const chip = (r)=>{
+      if(r==='won') return {chip:'Won +2', chipStyle:"font:700 11px 'Plus Jakarta Sans';color:#2C9E6E;background:rgba(63,191,135,.14);padding:5px 11px;border-radius:99px;flex:none"};
+      if(r==='lost') return {chip:'Missed −1', chipStyle:"font:700 11px 'Plus Jakarta Sans';color:#D8503F;background:rgba(236,106,94,.12);padding:5px 11px;border-radius:99px;flex:none"};
+      return {chip:'Pending', chipStyle:"font:700 11px 'Plus Jakarta Sans';color:#6D70D6;background:rgba(137,140,236,.12);padding:5px 11px;border-radius:99px;flex:none"};
+    };
+    let betHistory = [
+      {label:'Quarterfinal · You vs Neha', pick:'Anant Sinha (you)', r:'won'},
+      {label:'Quarterfinal · Priya vs Kavya', pick:'Priya Menon', r:'won'},
+      {label:'Quarterfinal · Sara vs Dev', pick:'Sara Khan', r:'lost'},
+      {label:'Semifinal · You vs Rahul', pick:'Anant Sinha (you)', r:'won'},
+      {label:'Semifinal · Priya vs Dev', pick:'Priya Menon', r:'won'}
+    ];
+    if(s.betPlaced) betHistory = [{label:'Final · Priya vs Anant', pick:s.betPick, r:'pending'}, ...betHistory];
+    betHistory = betHistory.map(b=>({...b, ...chip(b.r)}));
+
+    const moveOf = (dir,n)=> dir==='up'?{move:'▲'+n,moveColor:'#3FBF87'} : dir==='down'?{move:'▼'+n,moveColor:'#EC6A5E'} : {move:'—',moveColor:'#B4B2C8'};
+    const bettors = [
+      {rank:1,key:'dev',pts:14,acc:75,dir:'up',n:2},
+      {rank:2,key:'anant',pts:points,acc:80,dir:'up',n:1,you:true},
+      {rank:3,key:'priya',pts:11,acc:63,dir:'down',n:1},
+      {rank:4,key:'sara',pts:9,acc:57,dir:'same',n:0},
+      {rank:5,key:'rahul',pts:8,acc:60,dir:'up',n:3},
+      {rank:6,key:'kavya',pts:6,acc:40,dir:'down',n:2}
+    ].map(u=>{
+      const p=this.players[u.key];
+      const medal = u.rank===1?'#F0C63E':u.rank===2?'#B8BEC9':u.rank===3?'#CD8A4A':null;
+      const rankStyle = medal ? "width:28px;height:28px;border-radius:9px;background:"+medal+";color:#fff;font:800 13px 'Space Grotesk';display:grid;place-items:center" : "width:28px;height:28px;display:grid;place-items:center;font:700 14px 'Space Grotesk';color:#B4B2C8";
+      return {...u, ...moveOf(u.dir,u.n), name:p.name+(u.you?' (you)':''), ini:p.ini, avStyle:this.av(p.color,32,10), rankStyle,
+        rowStyle:"display:grid;grid-template-columns:"+(s.isMobile?'40px 1fr 52px 46px 44px':'56px 1fr 80px 70px 60px')+";gap:8px;align-items:center;padding:11px 14px;border-radius:14px;"+(u.you?"background:linear-gradient(90deg,rgba(137,140,236,.10),rgba(177,206,248,.05));border:1px solid #C9C3EE":"background:#FBFAFF;border:1px solid #F2F0FA")};
+    });
+
+    const standings = [
+      {key:'priya',seed:1,reached:'Finalist',out:false},
+      {key:'anant',seed:3,reached:'Finalist',out:false,you:true},
+      {key:'dev',seed:5,reached:'Semifinal',out:true},
+      {key:'rahul',seed:2,reached:'Semifinal',out:true},
+      {key:'sara',seed:4,reached:'Quarterfinal',out:true},
+      {key:'kavya',seed:8,reached:'Quarterfinal',out:true},
+      {key:'arjun',seed:7,reached:'Quarterfinal',out:true},
+      {key:'neha',seed:6,reached:'Quarterfinal',out:true}
+    ].map(p=>{ const pl=this.players[p.key];
+      return {...p, name:pl.name+(p.you?' (you)':''), ini:pl.ini, avStyle:this.av(pl.color,34,10),
+        chipStyle: p.out ? "font:700 11px 'Plus Jakarta Sans';color:#9B99B4;background:#F2F0FA;padding:5px 11px;border-radius:99px;flex:none" : "font:700 11px 'Plus Jakarta Sans';color:#6D70D6;background:rgba(137,140,236,.13);padding:5px 11px;border-radius:99px;flex:none",
+        rowStyle:"display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:13px;"+(p.you?"background:linear-gradient(90deg,rgba(137,140,236,.09),transparent);border:1px solid #DAD4F0":"background:#FBFAFF;border:1px solid #F2F0FA")};
+    });
+
+    const tourRules = [
+      {n:1,text:'Single-elimination bracket with random seeding once registration closes.'},
+      {n:2,text:'Odd player counts receive BYEs — a BYE automatically advances that player.'},
+      {n:3,text:'Number of rounds = ceil(log₂ of the player count).'},
+      {n:4,text:'Win your match to advance; a single loss knocks you out.'}
+    ];
+    const bettingRules = [
+      {text:'One bet per match — you cannot back both players.'},
+      {text:'Betting locks automatically the moment the match starts.'},
+      {text:'Bets cannot be edited after submission.'},
+      {text:'Your full betting history stays visible throughout.'}
+    ];
+
+    const life = [
+      {label:'Draft',st:'done'},{label:'Registration',st:'done'},{label:'Bracket',st:'done'},
+      {label:'Betting',st:'active'},{label:'Live',st:'active'},{label:'Finished',st:'todo'}
+    ];
+    const lifecycle = life.map((x,i)=>{
+      const done=x.st==='done', active=x.st==='active';
+      return {label:x.label, mark: done?'✓':(i+1),
+        dotStyle:"width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 12px 'Space Grotesk';flex:none;"+(done?"background:#898CEC;color:#fff":active?"background:linear-gradient(135deg,#E583BA,#898CEC);color:#fff;box-shadow:0 0 0 4px rgba(137,140,236,.15)":"background:#F2F0FA;color:#B4B2C8"),
+        labelStyle:"font:700 10.5px 'Plus Jakarta Sans';white-space:nowrap;"+(done||active?"color:#5B596F":"color:#B4B2C8"),
+        line: i<life.length-1, lineStyle:"flex:1;height:2px;margin:0 6px;margin-bottom:22px;border-radius:2px;background:"+((done||active)&&i<3?"#C9C3EE":"#ECEAF6")};
+    });
+
+    const act = (label,icon,tone)=>({label,icon,
+      style:"display:flex;align-items:center;gap:9px;padding:12px 13px;border:1px solid #EAE7F5;border-radius:13px;background:#fff;color:#43415C;font:700 12.5px 'Plus Jakarta Sans';cursor:pointer;text-align:left;transition:all .15s",
+      iconWrap:"width:26px;height:26px;border-radius:8px;display:grid;place-items:center;flex:none;color:"+tone+";background:"+tone+"1c"});
+    const adminActions = [
+      act('Open betting','M5 12h14M12 5v14','#898CEC'),
+      act('Close betting','M18 6L6 18M6 6l12 12','#EC6A5E'),
+      act('Start match','M6 4l14 8-14 8z','#3FBF87'),
+      act('Enter result','M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11','#6D70D6'),
+      act('Announce','M3 11l14-7v16L3 13zM3 11v4a2 2 0 002 2h1','#E9A23B'),
+      act('Schedule','M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2','#5AA9E6')
+    ];
+
+    const burstColors = ['#898CEC','#E583BA','#B1CEF8','#E9B949','#3FBF87'];
+    const burstDots = Array.from({length:18}).map((_,i)=>{
+      const tx = Math.round((Math.random()*2-1)*130), ty = Math.round(-40-Math.random()*90), rot=Math.round(Math.random()*360), delay=(Math.random()*0.12).toFixed(2), c=burstColors[i%burstColors.length], sz=6+Math.round(Math.random()*4);
+      return {style:"position:absolute;left:0;top:0;width:"+sz+"px;height:"+sz+"px;border-radius:2px;background:"+c+";--tx:"+tx+"px;--ty:"+ty+"px;--rot:"+rot+"deg;animation:confpop .95s ease-out "+delay+"s forwards"};
+    });
+
+    const screen = s.screen;
+    const desktop = !s.isMobile;
+    const dashCols = s.isMobile ? '1fr' : 'minmax(0,1.55fr) minmax(0,1fr)';
+    const betCols = s.isMobile ? '1fr' : 'minmax(0,1.7fr) minmax(0,1fr)';
+    const statCols = s.isMobile ? '1fr 1fr' : 'repeat(4,1fr)';
+    const lbGrid = s.isMobile ? '40px 1fr 52px 46px 44px' : '56px 1fr 80px 70px 60px';
+
+    const headerTitles = {dashboard:['Dashboard','Your arena at a glance'],tournament:['Table Tennis Championship','Season 2 · Final stage'],winners:['Results','Season 2 · Complete'],admin:['Admin console','Manage this tournament']};
+    const ht = headerTitles[screen] || ['LUMIQ Arena',''];
+
+    return {
+      isMobile:s.isMobile, desktop, points, showCoin:screen!=='dashboard',
+      joinedTournaments, openWindows, openCount, tourGrid,
+      headerStyle:"position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:"+(s.isMobile?'12px 16px':'14px 32px')+";background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid #ECE9F7",
+      mainStyle:"flex:1;padding:"+(s.isMobile?'20px 16px 88px':'32px')+";overflow-x:hidden",
+      headerTitle:ht[0], headerSub:ht[1],
+      isDashboard:screen==='dashboard', isTournament:screen==='tournament', isWinners:screen==='winners', isAdmin:screen==='admin',
+      isOverview:s.tab==='overview', isBracket:s.tab==='bracket', isBetting:s.tab==='betting', isBoard:s.tab==='leaderboard', isInfo:s.tab==='info',
+      isLbBettors:s.lb==='bettors', isLbPlayers:s.lb==='players',
+      dashCols, betCols, statCols, lbGrid,
+      rounds, myRun, announcements, betHistory, bettors, standings, tourRules, bettingRules, lifecycle, adminActions, burstDots,
+      betModal:s.betModal, toast:s.toast, burst:s.burst, betPick:s.betPick,
+      priyaPicked:s.betPick==='Priya Menon', anantPicked:s.betPick==='Anant Sinha',
+      tilePriya: this.pickTile(s.betPick==='Priya Menon', s.betPlaced),
+      tileAnant: this.pickTile(s.betPick==='Anant Sinha', s.betPlaced),
+      lockLabel: s.betPlaced ? '✓ Locked in on '+s.betPick : (s.betPick ? 'Lock in your bet' : 'Pick a player first'),
+      lockStyle: s.betPlaced ? "margin-left:auto;padding:12px 22px;border:none;border-radius:13px;background:linear-gradient(135deg,#3FBF87,#5CC7B0);color:#fff;font:700 14px 'Plus Jakarta Sans';cursor:default;box-shadow:0 6px 16px rgba(63,191,135,.3)"
+        : s.betPick ? "margin-left:auto;padding:12px 22px;border:none;border-radius:13px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 14px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 8px 18px rgba(137,140,236,.35)"
+        : "margin-left:auto;padding:12px 22px;border:none;border-radius:13px;background:#EDEBF7;color:#A6A4BC;font:700 14px 'Plus Jakarta Sans';cursor:not-allowed",
+      navDash:this.navStyle(screen==='dashboard'), navPlay:this.navStyle(screen==='tournament'), navBoard:this.navStyle(false), navAdmin:this.navStyle(screen==='admin'),
+      mnavDash:this.mnav(screen==='dashboard'), mnavPlay:this.mnav(screen==='tournament'), mnavBoard:this.mnav(false), mnavAdmin:this.mnav(screen==='admin'),
+      sTabOverview:this.subtab(s.tab==='overview'), sTabBracket:this.subtab(s.tab==='bracket'), sTabBetting:this.subtab(s.tab==='betting'), sTabBoard:this.subtab(s.tab==='leaderboard'), sTabInfo:this.subtab(s.tab==='info'),
+      segBettors:this.seg(s.lb==='bettors'), segPlayers:this.seg(s.lb==='players'),
+      goDash:()=>this.setState({screen:'dashboard'}),
+      goTour:()=>this.openT('overview'),
+      goBet:()=>this.openT('betting'),
+      goBoard:()=>this.openT('leaderboard'),
+      goAdmin:()=>this.setState({screen:'admin'}),
+      goWinners:()=>this.setState({screen:'winners'}),
+      tabOverview:()=>this.setState({tab:'overview'}), tabBracket:()=>this.setState({tab:'bracket'}),
+      tabBetting:()=>this.setState({tab:'betting'}), tabBoardT:()=>this.setState({tab:'leaderboard'}), tabInfo:()=>this.setState({tab:'info'}),
+      lbBettors:()=>this.setState({lb:'bettors'}), lbPlayers:()=>this.setState({lb:'players'}),
+      pickPriya:()=>{ if(!s.betPlaced) this.setState({betPick:'Priya Menon'}); },
+      pickAnant:()=>{ if(!s.betPlaced) this.setState({betPick:'Anant Sinha'}); },
+      openModal:()=>{ if(s.betPick && !s.betPlaced) this.setState({betModal:true}); },
+      cancel:()=>this.setState({betModal:false}),
+      confirm:()=>this.confirmBet()
+    };
+  }
+
+  pickTile(selected, placed){
+    const base = "flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 12px;border-radius:17px;cursor:"+(placed?'default':'pointer')+";transition:all .15s;text-align:center;";
+    if(selected) return base + "border:2px solid #898CEC;background:linear-gradient(160deg,rgba(137,140,236,.12),rgba(177,206,248,.07));box-shadow:0 10px 26px rgba(137,140,236,.22)";
+    return base + "border:2px solid #ECEAF6;background:#fff;"+(placed?"opacity:.5":"");
+  }
+}
+</script>
+</body>
+</html>

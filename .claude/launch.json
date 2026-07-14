@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tournament-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "design-reference",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4001", "--directory", "design_handoff_tournament_platform/reference"],
+      "port": 4001
+    }
+  ]
+}

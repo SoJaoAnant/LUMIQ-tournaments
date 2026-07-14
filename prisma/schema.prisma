@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  DEVELOPER
+}
+
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  BRACKET_GENERATED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  BETTING_OPEN
+  LIVE
+  FINISHED
+}
+
+model User {
+  id         String   @id @default(cuid())
+  clerkId    String   @unique
+  email      String   @unique
+  name       String
+  role       Role     @default(USER)
+  department String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  tournamentsCreated Tournament[]       @relation("TournamentCreator")
+  participants       Participant[]
+  bets               Bet[]
+  wallets            TournamentWallet[]
+  announcements      Announcement[]
+  auditLogs          AuditLog[]
+  bestBettorFor      Tournament[]       @relation("BestBettor")
+
+  @@index([role])
+}
+
+model Tournament {
+  id                String           @id @default(cuid())
+  title             String
+  description       String?
+  status            TournamentStatus @default(DRAFT)
+  registrationOpen  DateTime
+  registrationClose DateTime
+  bettingOpen       DateTime?
+  bettingClose      DateTime?
+
+  createdById String
+  createdBy   User   @relation("TournamentCreator", fields: [createdById], references: [id])
+
+  // Results, populated when status -> COMPLETED
+  winnerParticipantId     String?
+  runnerUpParticipantId   String?
+  thirdPlaceParticipantId String?
+  bestBettorId            String?
+  bestBettor              User?    @relation("BestBettor", fields: [bestBettorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants  Participant[]
+  matches       Match[]
+  wallets       TournamentWallet[]
+  announcements Announcement[]
+
+  @@index([status])
+}
+
+model Participant {
+  id           String  @id @default(cuid())
+  userId       String
+  tournamentId String
+  seed         Int
+  eliminated   Boolean @default(false)
+  currentRound Int     @default(1)
+
+  user       User       @relation(fields: [userId], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tournamentId])
+  @@index([tournamentId])
+}
+
+model Match {
+  id           String      @id @default(cuid())
+  tournamentId String
+  round        Int
+  matchNumber  Int
+  player1Id    String?
+  player2Id    String?
+  winnerId     String?
+  status       MatchStatus @default(SCHEDULED)
+  scheduledTime DateTime?
+
+  isBye             Boolean @default(false)
+  isThirdPlaceMatch Boolean @default(false)
+
+  // Bracket advancement wiring: where does the winner (and, for semifinals, the loser) go next?
+  nextMatchId    String?
+  nextMatchSlot  Int?
+  loserToMatchId String?
+  loserToSlot    Int?
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  bets       Bet[]
+
+  @@unique([tournamentId, round, matchNumber])
+  @@index([tournamentId, status])
+}
+
+model Bet {
+  id                String   @id @default(cuid())
+  userId            String
+  matchId           String
+  predictedWinnerId String
+  lockedAt          DateTime @default(now())
+  won               Boolean?
+  pointsSpent       Int      @default(1)
+  pointsEarned      Int      @default(0)
+
+  user  User  @relation(fields: [userId], references: [id])
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, matchId])
+  @@index([matchId])
+}
+
+model TournamentWallet {
+  id            String @id @default(cuid())
+  userId        String
+  tournamentId  String
+  currentPoints Int
+
+  user       User       @relation(fields: [userId], references: [id])
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tournamentId])
+}
+
+model Announcement {
+  id           String   @id @default(cuid())
+  tournamentId String
+  title        String
+  content      String
+  createdById  String
+  createdAt    DateTime @default(now())
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  createdBy  User       @relation(fields: [createdById], references: [id])
+
+  @@index([tournamentId])
+}
+
+model AuditLog {
+  id      String   @id @default(cuid())
+  actorId String
+  action  String
+  time    DateTime @default(now())
+  details Json?
+
+  actor User @relation(fields: [actorId], references: [id])
+
+  @@index([time])
+  @@index([actorId])
+}
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  enabled     Boolean  @default(false)
+  description String?
+  updatedAt   DateTime @updatedAt
+}
