@@ -146,7 +146,7 @@ export function MatchNode({
         onClick={() => setOpen(true)}
         title={`${p1Label} vs ${p2Label}`}
         className={cn(
-          "group flex w-full min-w-0 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-2 text-left shadow-sm transition-colors hover:border-primary/50",
+          "group flex w-fit max-w-[180px] shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-2 py-1.5 text-left shadow-sm transition-colors hover:border-primary/50",
           !player1Id && !player2Id && !isBye && "bg-primary/5"
         )}
       >
