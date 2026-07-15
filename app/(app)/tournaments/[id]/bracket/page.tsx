@@ -1,5 +1,6 @@
+import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Info } from "lucide-react"
+import { Info, Trophy } from "lucide-react"
 
 import { requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
@@ -80,6 +81,23 @@ export default async function TournamentBracketPage({
             totalRounds={Math.max(...matches.map((m) => m.round))}
           />
         </>
+      )}
+
+      {(tournament.status === "COMPLETED" || tournament.status === "ARCHIVED") && (
+        <Link
+          href={`/tournaments/${id}/results`}
+          className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/8"
+        >
+          <Trophy className="size-5 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">
+              Results are ready — the winner has been declared
+            </p>
+            <p className="text-xs text-muted-foreground">
+              See the final standings and the best bettor of the tournament →
+            </p>
+          </div>
+        </Link>
       )}
 
       <BracketView
