@@ -155,13 +155,13 @@ export function BracketView({
                 </div>
               )
             })}
-          </div>
 
-          {bronze && (
-            <div className="mt-4 flex justify-center border-t border-dashed border-border pt-4">
-              {renderMatch(bronze)}
-            </div>
-          )}
+            {bronze && (
+              <div className="mt-4 border-t border-dashed border-border pt-4">
+                <MatchRow matches={[bronze]} renderMatch={renderMatch} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -34,7 +34,6 @@ const STATE_CONFIG: Record<
     pillBg: string
     pillText: string
     dashed?: boolean
-    pulse?: boolean
   }
 > = {
   SCHEDULED: {
@@ -53,7 +52,6 @@ const STATE_CONFIG: Record<
     bg: "bg-destructive/6",
     pillBg: "bg-destructive/10",
     pillText: "text-destructive",
-    pulse: true,
   },
   LIVE: {
     label: "Live",
@@ -62,7 +60,6 @@ const STATE_CONFIG: Record<
     bg: "bg-[#E9A23B]/8",
     pillBg: "bg-[#E9A23B]/12",
     pillText: "text-[#B67A17]",
-    pulse: true,
   },
   FINISHED: {
     label: "Done",
@@ -79,16 +76,7 @@ function firstName(name: string) {
 }
 
 function StateDot({ config }: { config: (typeof STATE_CONFIG)[MatchStatus] }) {
-  return (
-    <span className="relative flex size-1.5 shrink-0">
-      {config.pulse && (
-        <span
-          className={cn("absolute inline-flex size-full animate-ping rounded-full opacity-70", config.dot)}
-        />
-      )}
-      <span className={cn("relative inline-flex size-1.5 rounded-full", config.dot)} />
-    </span>
-  )
+  return <span className={cn("inline-flex size-1.5 shrink-0 rounded-full", config.dot)} />
 }
 
 function PlayerRow({
@@ -222,7 +210,7 @@ export function MatchNode({
         onClick={() => setOpen(true)}
         title={`${p1Label} vs ${p2Label}`}
         className={cn(
-          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] p-1.5 text-center shadow-sm transition-all hover:shadow-md",
+          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] p-1.5 text-center shadow-sm transition-shadow hover:shadow-md",
           config.dashed && "border-dashed",
           config.border,
           config.bg
