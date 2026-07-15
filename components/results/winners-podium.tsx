@@ -61,7 +61,7 @@ export function WinnersPodium({ winner, runnerUp, thirdPlace }: Podium) {
   const names = { winner, runnerUp, thirdPlace }
 
   return (
-    <div className="flex items-end justify-center gap-3 sm:gap-6">
+    <div className="flex items-end justify-center gap-3 pt-8 sm:gap-6">
       {PLACES.map((place) => {
         const Icon = place.icon
         const name = names[place.key]
