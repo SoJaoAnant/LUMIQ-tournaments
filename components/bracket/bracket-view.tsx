@@ -138,7 +138,7 @@ export function BracketView({
         ))}
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
+      <div className="rounded-3xl border border-border bg-card p-4 sm:p-6">
         <div className="no-scrollbar max-h-[74vh] overflow-auto [--box:76px] [--gap:44px] [--slot:88px] min-[860px]:[--box:100px] min-[860px]:[--gap:56px] min-[860px]:[--slot:136px]">
           <div
             className="mx-auto flex min-w-0 flex-col"

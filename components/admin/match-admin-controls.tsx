@@ -24,10 +24,13 @@ export function MatchAdminControls({
   match,
   players,
   isDeveloper = false,
+  onDeclared,
 }: {
   match: Match
   players: Record<string, PlayerInfo>
   isDeveloper?: boolean
+  /** Called immediately once a winner is picked, e.g. to close the enclosing match panel. */
+  onDeclared?: () => void
 }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -155,6 +158,7 @@ export function MatchAdminControls({
                     onClick={() => {
                       run(() => declareWinner(match.id, pid), "Winner declared")
                       setWinnerOpen(false)
+                      onDeclared?.()
                     }}
                   >
                     {players[pid]?.name ?? pid}

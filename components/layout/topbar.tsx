@@ -21,7 +21,7 @@ export function Topbar({ role, name }: { role: Role; name: string }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md md:justify-end">
+    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background px-4 md:justify-end">
       <div className="flex items-center gap-2 md:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" />}>

@@ -210,7 +210,7 @@ export function MatchNode({
         onClick={() => setOpen(true)}
         title={`${p1Label} vs ${p2Label}`}
         className={cn(
-          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] p-1.5 text-center shadow-sm transition-shadow hover:shadow-md",
+          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] p-1.5 text-center",
           config.dashed && "border-dashed",
           config.border,
           config.bg
@@ -312,6 +312,7 @@ export function MatchNode({
                   ...(player2Id && player2 ? { [player2Id]: player2 } : {}),
                 }}
                 isDeveloper={isDeveloper}
+                onDeclared={() => setOpen(false)}
               />
             </div>
           )}
