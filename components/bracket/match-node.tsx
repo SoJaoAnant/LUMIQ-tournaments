@@ -26,12 +26,22 @@ export type MatchBet = {
 
 const STATE_CONFIG: Record<
   MatchStatus,
-  { label: string; dot: string; border: string; pillBg: string; pillText: string; dashed?: boolean; pulse?: boolean }
+  {
+    label: string
+    dot: string
+    border: string
+    bg: string
+    pillBg: string
+    pillText: string
+    dashed?: boolean
+    pulse?: boolean
+  }
 > = {
   SCHEDULED: {
     label: "Soon",
     dot: "bg-primary/35",
     border: "border-primary/25",
+    bg: "bg-primary/5",
     pillBg: "bg-primary/10",
     pillText: "text-primary",
     dashed: true,
@@ -40,6 +50,7 @@ const STATE_CONFIG: Record<
     label: "Betting",
     dot: "bg-destructive",
     border: "border-destructive/40",
+    bg: "bg-destructive/6",
     pillBg: "bg-destructive/10",
     pillText: "text-destructive",
     pulse: true,
@@ -48,6 +59,7 @@ const STATE_CONFIG: Record<
     label: "Live",
     dot: "bg-[#E9A23B]",
     border: "border-[#E9A23B]/50",
+    bg: "bg-[#E9A23B]/8",
     pillBg: "bg-[#E9A23B]/12",
     pillText: "text-[#B67A17]",
     pulse: true,
@@ -56,6 +68,7 @@ const STATE_CONFIG: Record<
     label: "Done",
     dot: "bg-muted-foreground/40",
     border: "border-border",
+    bg: "bg-muted-foreground/5",
     pillBg: "bg-muted",
     pillText: "text-muted-foreground",
   },
@@ -209,9 +222,10 @@ export function MatchNode({
         onClick={() => setOpen(true)}
         title={`${p1Label} vs ${p2Label}`}
         className={cn(
-          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] bg-card p-1.5 text-center shadow-sm transition-all hover:shadow-md",
+          "flex size-(--box) shrink-0 flex-col items-center justify-center gap-0.5 rounded-[15px] border-[1.5px] p-1.5 text-center shadow-sm transition-all hover:shadow-md",
           config.dashed && "border-dashed",
-          config.border
+          config.border,
+          config.bg
         )}
       >
         <span className="mb-0.5 flex items-center gap-1 text-[8px] font-bold tracking-wide text-muted-foreground uppercase">

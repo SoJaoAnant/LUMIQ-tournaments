@@ -139,9 +139,9 @@ export function BracketView({
       </div>
 
       <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-        <div className="no-scrollbar max-h-[74vh] overflow-auto">
+        <div className="no-scrollbar max-h-[74vh] overflow-auto [--box:76px] [--gap:44px] [--slot:88px] min-[860px]:[--box:100px] min-[860px]:[--gap:56px] min-[860px]:[--slot:136px]">
           <div
-            className="mx-auto flex min-w-0 flex-col [--box:76px] [--gap:44px] [--slot:88px] min-[860px]:[--box:100px] min-[860px]:[--gap:56px] min-[860px]:[--slot:136px]"
+            className="mx-auto flex min-w-0 flex-col"
             style={{ width: `calc(var(--slot) * ${firstRoundCount})` }}
           >
             {roundsOfMatches.map((roundMatches, idx) => {
@@ -158,7 +158,7 @@ export function BracketView({
           </div>
 
           {bronze && (
-            <div className="mt-4 flex w-fit min-w-full justify-center border-t border-dashed border-border pt-4">
+            <div className="mt-4 flex justify-center border-t border-dashed border-border pt-4">
               {renderMatch(bronze)}
             </div>
           )}
