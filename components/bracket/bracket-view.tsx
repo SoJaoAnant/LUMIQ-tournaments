@@ -20,37 +20,47 @@ function sortByMatchNumber(matches: Match[]) {
   return [...matches].sort((a, b) => a.matchNumber - b.matchNumber)
 }
 
-/** Full-width `<svg>` band connecting one round's matches down into the next round's. */
+/** Full-width band of plain CSS elbow connectors (no SVG) linking one round's matches to the next's. */
 function ConnectorBand({ parents, childMatches }: { parents: Match[]; childMatches: Match[] }) {
   const childCount = childMatches.length
-  const paths: { d: string; active: boolean }[] = []
+  const segments: { parentPct: number; childPct: number; active: boolean }[] = []
 
   childMatches.forEach((child, j) => {
-    const childCx = ((j + 0.5) / childCount) * 1000
+    const childPct = ((j + 0.5) / childCount) * 100
     const active = ACTIVE_CHILD_STATUSES.includes(child.status)
     parents
       .filter((p) => p.nextMatchId === child.id)
       .forEach((parent) => {
         const pi = parents.indexOf(parent)
-        const parentCx = ((pi + 0.5) / parents.length) * 1000
-        paths.push({ d: `M ${parentCx} 0 V 50 H ${childCx} V 100`, active })
+        const parentPct = ((pi + 0.5) / parents.length) * 100
+        segments.push({ parentPct, childPct, active })
       })
   })
 
   return (
-    <svg viewBox="0 0 1000 100" preserveAspectRatio="none" className="block h-(--gap) w-full">
-      {paths.map((p, i) => (
-        <path
-          key={i}
-          d={p.d}
-          fill="none"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={p.active ? "stroke-accent" : "stroke-border"}
-        />
-      ))}
-    </svg>
+    <div className="relative h-(--gap) w-full">
+      {segments.map((s, i) => {
+        const lineClass = s.active ? "bg-accent" : "bg-border"
+        const left = Math.min(s.parentPct, s.childPct)
+        const width = Math.abs(s.childPct - s.parentPct)
+        return (
+          <div key={i}>
+            <div
+              className={cn("absolute top-0 h-1/2 w-0.5 -translate-x-1/2", lineClass)}
+              style={{ left: `${s.parentPct}%` }}
+            />
+            <div
+              className={cn("absolute top-1/2 h-0.5 -translate-y-1/2", lineClass)}
+              style={{ left: `${left}%`, width: `${width}%` }}
+            />
+            <div
+              className={cn("absolute bottom-0 h-1/2 w-0.5 -translate-x-1/2", lineClass)}
+              style={{ left: `${s.childPct}%` }}
+            />
+          </div>
+        )
+      })}
+    </div>
   )
 }
 
