@@ -23,6 +23,7 @@ a:hover{color:#898CEC}
 @keyframes coinpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
 @keyframes livepulse{0%{box-shadow:0 0 0 0 rgba(236,106,94,.55)}70%{box-shadow:0 0 0 7px rgba(236,106,94,0)}100%{box-shadow:0 0 0 0 rgba(236,106,94,0)}}
 @keyframes slideup{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes sheetup{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes confpop{0%{transform:translate(-50%,0) scale(.4);opacity:1}100%{transform:translate(calc(-50% + var(--tx,0px)), var(--ty,-60px)) scale(1) rotate(var(--rot,90deg));opacity:0}}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes glow{0%,100%{opacity:.5}50%{opacity:.85}}
@@ -179,32 +180,81 @@ a:hover{color:#898CEC}
 
         <!-- BRACKET -->
         <sc-if value="{{ isBracket }}" hint-placeholder-val="{{ false }}">
-        <div style="background:#fff;border:1px solid #EDEBF7;border-radius:22px;padding:20px;box-shadow:0 2px 12px rgba(30,27,75,.04);overflow:auto;max-height:74vh">
-          <div style="display:flex;flex-direction:column;align-items:center;min-width:900px;margin:0 auto">
-            <sc-for list="{{ rounds }}" as="round" hint-placeholder-count="3">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span style="font:700 14px 'Space Grotesk';color:#1C1B2E">{{ round.name }}</span><span style="{{ round.pillStyle }}">{{ round.pill }}</span></div>
-              <div style="display:flex;gap:16px;justify-content:center;flex-wrap:nowrap">
-                <sc-for list="{{ round.matches }}" as="m" hint-placeholder-count="2">
-                  <div style="width:212px;flex:none;display:flex;flex-direction:column;align-items:center;gap:8px">
-                    <span style="{{ m.statusStyle }}">{{ m.statusLabel }}</span>
-                    <div style="{{ m.cardStyle }};width:100%">
-                      <div style="{{ m.p1.rowStyle }}"><div style="{{ m.p1.avStyle }}">{{ m.p1.ini }}</div><div style="{{ m.p1.nameStyle }}">{{ m.p1.name }}</div><div style="{{ m.p1.scoreStyle }}">{{ m.p1.score }}</div></div>
-                      <div style="{{ m.p2.rowStyle }}"><div style="{{ m.p2.avStyle }}">{{ m.p2.ini }}</div><div style="{{ m.p2.nameStyle }}">{{ m.p2.name }}</div><div style="{{ m.p2.scoreStyle }}">{{ m.p2.score }}</div></div>
-                      <sc-if value="{{ m.betOpen }}" hint-placeholder-val="{{ false }}"><button onClick="{{ tabBetting }}" style="margin-top:10px;width:100%;padding:9px;border:none;border-radius:10px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 12px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 5px 13px rgba(137,140,236,.3)">Place bet →</button></sc-if>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;font:600 11.5px 'Plus Jakarta Sans';color:#8B8AA3">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#EC6A5E"></span>Betting open</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#E9A23B"></span>Live</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#C9C3EE"></span>Scheduled</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#B4B2C8"></span>Concluded</span>
+          </div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;padding:4px;background:#F4F2FE;border-radius:11px">
+            <button onClick="{{ rolePlayer }}" style="{{ segPlayerRole }}">Player</button>
+            <button onClick="{{ roleAdmin }}" style="{{ segAdminRole }}">Admin</button>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #EDEBF7;border-radius:22px;padding:16px 14px;box-shadow:0 2px 12px rgba(30,27,75,.04);overflow:auto;max-height:76vh;-webkit-overflow-scrolling:touch">
+          <div style="width:{{ treeW }}px;margin:0 auto">
+            <sc-for list="{{ treeRounds }}" as="R" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:center;margin-bottom:10px"><span style="font:700 10px 'Plus Jakarta Sans';color:#6D70D6;background:#F4F2FE;padding:4px 14px;border-radius:99px;letter-spacing:.03em;text-transform:uppercase">{{ R.name }}</span></div>
+              <div style="display:flex;width:100%">
+                <sc-for list="{{ R.boxes }}" as="b" hint-placeholder-count="2">
+                  <div style="{{ b.slotStyle }}">
+                    <div onClick="{{ b.onClick }}" style="{{ b.style }}">
+                      <div style="{{ b.tagStyle }}"><span style="{{ b.dotStyle }}"></span>{{ b.stateLabel }}</div>
+                      <div style="{{ b.p1Style }}">{{ b.p1 }}</div>
+                      <div style="{{ b.vsStyle }}">{{ b.mid }}</div>
+                      <div style="{{ b.p2Style }}">{{ b.p2 }}</div>
                     </div>
                   </div>
                 </sc-for>
               </div>
-              <sc-if value="{{ round.notLast }}" hint-placeholder-val="{{ true }}">
-                <div style="display:flex;flex-direction:column;align-items:center;padding:6px 0 20px">
-                  <div style="width:2px;height:18px;background:#DAD4F0"></div>
-                  <div style="width:30px;height:30px;border-radius:50%;background:rgba(137,140,236,.12);display:grid;place-items:center"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6D70D6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
-                  <div style="font:700 10px 'Plus Jakarta Sans';color:#A6A4BC;margin-top:5px;letter-spacing:.05em;text-transform:uppercase">Winners advance</div>
-                </div>
+              <sc-if value="{{ R.hasBand }}" hint-placeholder-val="{{ true }}">
+                <svg width="{{ R.bandW }}" height="{{ R.bandH }}" style="display:block;margin:0 auto">
+                  <sc-for list="{{ R.paths }}" as="p" hint-placeholder-count="2"><path d="{{ p.d }}" fill="none" stroke="{{ p.stroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></sc-for>
+                </svg>
               </sc-if>
             </sc-for>
           </div>
         </div>
+
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeExpand }}" style="position:fixed;inset:0;z-index:55;background:rgba(28,27,46,.5);backdrop-filter:blur(4px);display:flex;align-items:{{ sheetAlign }};justify-content:center;padding:{{ sheetPad }}">
+          <div onClick="{{ stop }}" style="{{ sheetStyle }}">
+            <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}"><div style="width:40px;height:4px;border-radius:99px;background:#E0DCEF;margin:0 auto 14px"></div></sc-if>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+              <div><div style="font:600 11px 'Plus Jakarta Sans';color:#9B99B4">{{ exp.roundName }}</div><div style="font:700 17px 'Space Grotesk';color:#1C1B2E">Match details</div></div>
+              <div style="{{ exp.tagStyle }}"><span style="{{ exp.dotStyle }}"></span>{{ exp.stateLabel }}</div>
+              <button onClick="{{ closeExpand }}" style="margin-left:auto;width:32px;height:32px;border-radius:50%;border:1px solid #ECEAF6;background:#fff;color:#8B8AA3;font:700 15px 'Plus Jakarta Sans';cursor:pointer;display:grid;place-items:center">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+              <div style="{{ exp.r1Style }}"><div style="{{ exp.a1Style }}">{{ exp.i1 }}</div><div style="font:700 14px 'Plus Jakarta Sans';color:#1C1B2E;flex:1">{{ exp.n1 }}</div><div style="{{ exp.s1Style }}">{{ exp.sc1 }}</div></div>
+              <div style="{{ exp.r2Style }}"><div style="{{ exp.a2Style }}">{{ exp.i2 }}</div><div style="font:700 14px 'Plus Jakarta Sans';color:#1C1B2E;flex:1">{{ exp.n2 }}</div><div style="{{ exp.s2Style }}">{{ exp.sc2 }}</div></div>
+            </div>
+
+            <sc-if value="{{ exp.showPlayerBet }}" hint-placeholder-val="{{ false }}">
+              <div style="background:linear-gradient(160deg,#FBFAFF,#F5F2FE);border:1px solid #E7E3F6;border-radius:16px;padding:16px">
+                <div style="font:700 12.5px 'Plus Jakarta Sans';color:#6D70D6;margin-bottom:12px">Back a winner — stake 1, win +2</div>
+                <div style="display:flex;gap:10px;margin-bottom:14px">
+                  <button onClick="{{ exp.pick1 }}" style="{{ exp.pick1Style }}">{{ exp.n1 }}</button>
+                  <button onClick="{{ exp.pick2 }}" style="{{ exp.pick2Style }}">{{ exp.n2 }}</button>
+                </div>
+                <button onClick="{{ exp.lock }}" style="{{ exp.lockStyle }}">{{ exp.lockLabel }}</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ exp.showPlayerResult }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:11px;padding:14px;border-radius:14px;background:#F8FAF9;border:1px solid #E4F0EA"><span style="{{ exp.betChipStyle }}">{{ exp.betChip }}</span><span style="font:600 12.5px 'Plus Jakarta Sans';color:#5B596F">{{ exp.betNote }}</span></div>
+            </sc-if>
+            <sc-if value="{{ exp.showAdmin }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <div style="font:700 11px 'Plus Jakarta Sans';color:#9B99B4;letter-spacing:.04em;text-transform:uppercase">Organizer controls</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+                  <sc-for list="{{ exp.adminBtns }}" as="a" hint-placeholder-count="2"><button onClick="{{ a.onClick }}" style="{{ a.style }}">{{ a.label }}</button></sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+        </sc-if>
         </sc-if>
 
         <!-- BETTING (HERO) -->
@@ -480,7 +530,7 @@ a:hover{color:#898CEC}
 class Component extends DCLogic {
   constructor(props){
     super(props);
-    this.state = { screen: props.startScreen || 'tournament', tab:'overview', lb:'bettors', betPick:null, betPlaced:false, betModal:false, toast:null, burst:false, isMobile:false };
+    this.state = { screen: props.startScreen || 'tournament', tab:'overview', lb:'bettors', betPick:null, betPlaced:false, betModal:false, toast:null, burst:false, isMobile:false, role:'player', expanded:null, expPick:null, stateOverrides:{} };
     this._onResize = this._onResize.bind(this);
   }
   componentDidMount(){ this._onResize(); window.addEventListener('resize', this._onResize); }
@@ -490,12 +540,20 @@ class Component extends DCLogic {
   openT(tab){ this.setState({ screen:'tournament', tab: tab||'overview' }); }
   confirmBet(){
     const cele = this.props.celebrations !== false;
-    this.setState({ betPlaced:true, betModal:false, points:11, toast:"Locked in on "+this.state.betPick+" — win 2 points if they take it!", burst:cele });
+    this.setState({ betPlaced:true, betModal:false, expanded:null, expPick:null, points:11, toast:"Locked in on "+this.state.betPick+" — win 2 points if they take it!", burst:cele });
     clearTimeout(this._t);
     this._t = setTimeout(()=>this.setState({toast:null, burst:false}), 4000);
   }
 
   av(c,s,r){ return "width:"+s+"px;height:"+s+"px;border-radius:"+r+"px;background:"+c+";color:#fff;font:800 "+Math.round(s*0.4)+"px 'Space Grotesk';display:grid;place-items:center;flex:none;box-shadow:0 2px 6px "+c+"55"; }
+
+  stateViz(st){
+    if(st==='open') return {label:'Betting', color:'#D8503F', dot:'#EC6A5E', border:'rgba(236,106,94,.42)', bg:'linear-gradient(160deg,#FFF6F5,#fff)', anim:'animation:livepulse 1.8s infinite;', dashed:false};
+    if(st==='live') return {label:'Live', color:'#B67A17', dot:'#E9A23B', border:'rgba(233,162,59,.5)', bg:'linear-gradient(160deg,#FFFBF3,#fff)', anim:'animation:livepulse 1.8s infinite;', dashed:false};
+    if(st==='scheduled') return {label:'Soon', color:'#8E8BB5', dot:'#C9C3EE', border:'#E1DCF0', bg:'#FBFAFF', anim:'', dashed:true};
+    return {label:'Done', color:'#9B99B4', dot:'#B4B2C8', border:'#ECEAF6', bg:'#fff', anim:'', dashed:false};
+  }
+  adminSet(id,to){ this.setState(s=>({stateOverrides:{...s.stateOverrides,[id]:to}})); }
 
   navStyle(active){
     const base = "display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:13px;font:600 14px 'Plus Jakarta Sans';cursor:pointer;border:none;width:100%;text-align:left;transition:all .15s;";
@@ -694,6 +752,115 @@ class Component extends DCLogic {
     });
 
     const screen = s.screen;
+    // ---- Bracket tree geometry ----
+    const first = (k)=> this.players[k].name.split(' ')[0];
+    const roundNames = ['Quarterfinals','Semifinals','Final'];
+    const mdata = [
+      {id:'qf1',rd:0,p1:'priya',p2:'kavya',s1:3,s2:0,win:'p1',st:'concluded',bet:{r:'won',pick:'p1'}},
+      {id:'qf2',rd:0,p1:'sara',p2:'dev',s1:1,s2:3,win:'p2',st:'concluded',bet:{r:'lost',pick:'p1'}},
+      {id:'qf3',rd:0,p1:'rahul',p2:'arjun',s1:3,s2:2,win:'p1',st:'concluded',bet:null},
+      {id:'qf4',rd:0,p1:'anant',p2:'neha',s1:3,s2:1,win:'p1',st:'concluded',bet:{r:'won',pick:'p1'}},
+      {id:'sf1',rd:1,p1:'priya',p2:'dev',s1:3,s2:1,win:'p1',st:'concluded',bet:{r:'won',pick:'p1'}},
+      {id:'sf2',rd:1,p1:'rahul',p2:'anant',s1:2,s2:3,win:'p2',st:'concluded',bet:{r:'won',pick:'p2'}},
+      {id:'f1',rd:2,p1:'priya',p2:'anant',s1:0,s2:0,win:null,st:'open',bet:null}
+    ].map(m=>({...m, st: s.stateOverrides[m.id] || m.st}));
+
+    const nRounds = roundNames.length;
+    const firstCount = mdata.filter(m=>m.rd===0).length;
+    const boxW = s.isMobile ? 76 : 100, boxH = boxW, slot = s.isMobile ? 88 : 136, connGap = s.isMobile ? 44 : 56;
+    const treeW = firstCount * slot;
+    const cntOf = (rd)=> firstCount / Math.pow(2, rd);
+    const cxU = (rd, j)=> (j + 0.5) * (treeW / cntOf(rd));
+    const idxInRound = {}; mdata.forEach(m=>{ idxInRound[m.rd] = idxInRound[m.rd]||0; m._j = idxInRound[m.rd]++; });
+
+    const boxOf = (m)=>{
+      const v = this.stateViz(m.st);
+      const sel = s.expanded === m.id;
+      const done = m.st==='concluded';
+      const p1col = done ? (m.win==='p1'?'#1C1B2E':'#B7B5CA') : '#43415C';
+      const p2col = done ? (m.win==='p2'?'#1C1B2E':'#B7B5CA') : '#43415C';
+      const nameFont = "font:700 "+(s.isMobile?'11':'13')+"px 'Plus Jakarta Sans';line-height:1.1;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;";
+      return {
+        slotStyle:"flex:none;width:"+(treeW/cntOf(m.rd))+"px;display:flex;justify-content:center",
+        onClick:()=>this.setState({expanded:m.id, expPick:null}),
+        style:"width:"+boxW+"px;height:"+boxH+"px;border-radius:15px;border:"+(v.dashed?'1.5px dashed ':'1.5px solid ')+(sel?'#898CEC':v.border)+";background:"+v.bg+";display:flex;flex-direction:column;align-items:center;justify-content:center;padding:7px 6px;cursor:pointer;transition:all .15s;box-shadow:"+(sel?'0 10px 22px rgba(137,140,236,.30)':'0 2px 8px rgba(30,27,75,.05)'),
+        tagStyle:"display:flex;align-items:center;gap:4px;font:700 8px 'Plus Jakarta Sans';letter-spacing:.03em;text-transform:uppercase;color:"+v.color+";margin-bottom:5px",
+        dotStyle:"width:6px;height:6px;border-radius:50%;background:"+v.dot+";"+v.anim,
+        stateLabel:v.label,
+        p1:first(m.p1), p2:first(m.p2), mid:'vs',
+        p1Style:nameFont+"color:"+p1col, p2Style:nameFont+"color:"+p2col,
+        vsStyle:"font:700 7.5px 'Space Grotesk';color:#C7C2DE;margin:1px 0"
+      };
+    };
+
+    const treeRounds = roundNames.map((nm,rd)=>{
+      const boxes = mdata.filter(m=>m.rd===rd).map(boxOf);
+      const hasBand = rd < nRounds-1;
+      let paths = [], bandH = connGap;
+      if(hasBand){
+        const childCount = cntOf(rd+1);
+        for(let j=0;j<childCount;j++){
+          const child = mdata.find(m=>m.rd===rd+1 && m._j===j);
+          const active = child && (child.st==='open'||child.st==='live');
+          const stroke = active ? '#E3A9C6' : '#DBD5F0';
+          const childCx = cxU(rd+1, j), midY = bandH/2;
+          [2*j, 2*j+1].forEach(pi=>{
+            const pcx = cxU(rd, pi);
+            paths.push({ d:"M "+pcx+" 0 V "+midY+" H "+childCx+" V "+bandH, stroke });
+          });
+        }
+      }
+      return { name:nm, boxes, hasBand, bandW:treeW, bandH, paths };
+    });
+
+    // ---- Expanded match panel ----
+    let exp = null;
+    const em = s.expanded ? mdata.find(m=>m.id===s.expanded) : null;
+    if(em){
+      const v = this.stateViz(em.st);
+      const pl1 = this.players[em.p1], pl2 = this.players[em.p2];
+      const done = em.st==='concluded';
+      const showScore = done || em.st==='live';
+      const rowBase = "display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:13px;";
+      const win1 = done && em.win==='p1', win2 = done && em.win==='p2';
+      const fullPick = ()=> s.expPick==='p1' ? pl1.name : (s.expPick==='p2' ? pl2.name : null);
+      const pickBtn = (isSel)=> "flex:1;padding:12px 10px;border-radius:12px;font:700 13px 'Plus Jakarta Sans';cursor:"+(s.betPlaced?'default':'pointer')+";transition:all .15s;border:2px solid "+(isSel?'#898CEC':'#E7E3F6')+";background:"+(isSel?'linear-gradient(160deg,rgba(137,140,236,.12),#fff)':'#fff')+";color:#1C1B2E"+(s.betPlaced&&!isSel?';opacity:.5':'');
+      const adminDefs = {
+        scheduled:[{label:'Open betting',to:'open'},{label:'Start match',to:'live'}],
+        open:[{label:'Close betting',to:'scheduled'},{label:'Go live',to:'live'}],
+        live:[{label:'Conclude match',to:'concluded'},{label:'Reopen betting',to:'open'}],
+        concluded:[{label:'Edit result',to:'concluded'},{label:'Reopen match',to:'open'}]
+      };
+      const abtn = (d,i)=> ({label:d.label, onClick:()=>this.adminSet(em.id,d.to),
+        style:"padding:12px;border-radius:12px;font:700 12.5px 'Plus Jakarta Sans';cursor:pointer;border:none;"+(i===0?"background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;box-shadow:0 5px 13px rgba(137,140,236,.3)":"background:#F4F2FE;color:#6D70D6")});
+      const betChipMap = { won:{t:'Won +2',c:'#2C9E6E',bg:'rgba(63,191,135,.14)'}, lost:{t:'Missed −1',c:'#D8503F',bg:'rgba(236,106,94,.12)'} };
+      const bc = em.bet ? betChipMap[em.bet.r] : null;
+      exp = {
+        roundName: roundNames[em.rd], stateLabel:v.label,
+        tagStyle:"display:flex;align-items:center;gap:6px;margin-left:auto;font:700 11px 'Plus Jakarta Sans';color:"+v.color+";background:"+(em.st==='concluded'?'#F2F0FA':'rgba(236,106,94,.10)')+";padding:5px 11px;border-radius:99px",
+        dotStyle:"width:7px;height:7px;border-radius:50%;background:"+v.dot+";"+v.anim,
+        i1:pl1.ini, i2:pl2.ini, n1:pl1.name, n2:pl2.name,
+        a1Style:this.av(pl1.color,36,11), a2Style:this.av(pl2.color,36,11),
+        sc1: showScore?String(em.s1):'–', sc2: showScore?String(em.s2):'–',
+        s1Style:"font:800 18px 'Space Grotesk';color:"+(win1?'#6D70D6':'#C3BEE0'), s2Style:"font:800 18px 'Space Grotesk';color:"+(win2?'#6D70D6':'#C3BEE0'),
+        r1Style:rowBase+(win1?"background:linear-gradient(90deg,rgba(137,140,236,.12),transparent);border:1px solid #DAD4F0":"background:#FBFAFF;border:1px solid #F2F0FA"),
+        r2Style:rowBase+(win2?"background:linear-gradient(90deg,rgba(137,140,236,.12),transparent);border:1px solid #DAD4F0":"background:#FBFAFF;border:1px solid #F2F0FA"),
+        showPlayerBet: s.role==='player' && em.st==='open',
+        showPlayerResult: s.role==='player' && em.st!=='open',
+        showAdmin: s.role==='admin',
+        pick1:()=>{ if(!s.betPlaced) this.setState({expPick:'p1'}); }, pick2:()=>{ if(!s.betPlaced) this.setState({expPick:'p2'}); },
+        pick1Style:pickBtn(s.expPick==='p1'), pick2Style:pickBtn(s.expPick==='p2'),
+        lock:()=>{ const fp=fullPick(); if(fp && !s.betPlaced) this.setState({betPick:fp, betModal:true}); },
+        lockLabel: s.betPlaced ? '✓ Bet locked in' : (s.expPick ? 'Lock in your bet' : 'Pick a player first'),
+        lockStyle: s.betPlaced ? "width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#3FBF87,#5CC7B0);color:#fff;font:700 13.5px 'Plus Jakarta Sans';cursor:default"
+          : s.expPick ? "width:100%;padding:13px;border:none;border-radius:12px;background:linear-gradient(135deg,#898CEC,#7A7DE8);color:#fff;font:700 13.5px 'Plus Jakarta Sans';cursor:pointer;box-shadow:0 6px 16px rgba(137,140,236,.32)"
+          : "width:100%;padding:13px;border:none;border-radius:12px;background:#EDEBF7;color:#A6A4BC;font:700 13.5px 'Plus Jakarta Sans';cursor:not-allowed",
+        adminBtns:(adminDefs[em.st]||adminDefs.concluded).map(abtn),
+        betChip: bc?bc.t:'No bet', betChipStyle: bc? "font:700 11px 'Plus Jakarta Sans';color:"+bc.c+";background:"+bc.bg+";padding:5px 12px;border-radius:99px;flex:none" : "font:700 11px 'Plus Jakarta Sans';color:#9B99B4;background:#F2F0FA;padding:5px 12px;border-radius:99px;flex:none",
+        betNote: em.st==='concluded' ? (em.bet? "Your bet on this match settled." : "You didn't bet on this match.") : "Betting hasn't opened for this match yet."
+      };
+    }
+
     const desktop = !s.isMobile;
     const dashCols = s.isMobile ? '1fr' : 'minmax(0,1.55fr) minmax(0,1fr)';
     const betCols = s.isMobile ? '1fr' : 'minmax(0,1.7fr) minmax(0,1fr)';
@@ -706,6 +873,15 @@ class Component extends DCLogic {
     return {
       isMobile:s.isMobile, desktop, points, showCoin:screen!=='dashboard',
       joinedTournaments, openWindows, openCount, tourGrid,
+      treeW, treeRounds,
+      expanded: !!em, exp,
+      segPlayerRole:this.seg(s.role==='player'), segAdminRole:this.seg(s.role==='admin'),
+      rolePlayer:()=>this.setState({role:'player'}), roleAdmin:()=>this.setState({role:'admin'}),
+      closeExpand:()=>this.setState({expanded:null, expPick:null}),
+      stop:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); },
+      sheetAlign: s.isMobile ? 'flex-end' : 'center',
+      sheetPad: s.isMobile ? '0' : '20px',
+      sheetStyle: "background:#fff;box-shadow:0 -10px 40px rgba(28,27,46,.28);width:100%;max-width:"+(s.isMobile?'100%':'440px')+";padding:"+(s.isMobile?'18px 18px calc(22px + env(safe-area-inset-bottom))':'24px')+";border-radius:"+(s.isMobile?'24px 24px 0 0':'22px')+";animation:sheetup .28s ease;max-height:88vh;overflow-y:auto",
       headerStyle:"position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:"+(s.isMobile?'12px 16px':'14px 32px')+";background:rgba(255,255,255,.78);backdrop-filter:blur(14px);border-bottom:1px solid #ECE9F7",
       mainStyle:"flex:1;padding:"+(s.isMobile?'20px 16px 88px':'32px')+";overflow-x:hidden",
       headerTitle:ht[0], headerSub:ht[1],

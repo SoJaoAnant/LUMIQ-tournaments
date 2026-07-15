@@ -1,52 +1,73 @@
-import type { Match } from "@prisma/client"
-import { ArrowDown, Trophy } from "lucide-react"
+import type { Match, MatchStatus } from "@prisma/client"
+import { Trophy } from "lucide-react"
 
-import { getRoundLabel } from "@/lib/bracket"
-import { MatchNode } from "@/components/bracket/match-node"
+import { MatchNode, type MatchBet } from "@/components/bracket/match-node"
 import { EmptyState } from "@/components/shared/empty-state"
 import { cn } from "@/lib/utils"
 
 type PlayerInfo = { name: string; seed: number; eliminated: boolean }
 
-type RoundStatus = "done" | "live" | "betting" | "upcoming"
+const LEGEND: { dotClassName: string; label: string }[] = [
+  { dotClassName: "bg-destructive", label: "Betting" },
+  { dotClassName: "bg-[#E9A23B]", label: "Live" },
+  { dotClassName: "bg-primary/35", label: "Scheduled" },
+  { dotClassName: "bg-muted-foreground/40", label: "Concluded" },
+]
 
-const ROUND_STATUS: Record<RoundStatus, { label: string; cls: string }> = {
-  done: { label: "Done", cls: "bg-muted text-muted-foreground" },
-  live: { label: "Live", cls: "bg-destructive/10 text-destructive" },
-  betting: { label: "Betting open", cls: "bg-destructive/10 text-destructive" },
-  upcoming: { label: "Upcoming", cls: "bg-primary/8 text-primary" },
+const ACTIVE_CHILD_STATUSES: MatchStatus[] = ["BETTING_OPEN", "LIVE"]
+
+function sortByMatchNumber(matches: Match[]) {
+  return [...matches].sort((a, b) => a.matchNumber - b.matchNumber)
 }
 
-function roundStatusOf(matches: Match[]): RoundStatus {
-  if (matches.some((m) => m.status === "LIVE")) return "live"
-  if (matches.some((m) => m.status === "BETTING_OPEN")) return "betting"
-  if (matches.every((m) => m.status === "FINISHED")) return "done"
-  return "upcoming"
-}
+/** Full-width `<svg>` band connecting one round's matches down into the next round's. */
+function ConnectorBand({ parents, childMatches }: { parents: Match[]; childMatches: Match[] }) {
+  const childCount = childMatches.length
+  const paths: { d: string; active: boolean }[] = []
 
-function RoundHeader({ label, matches }: { label: string; matches: Match[] }) {
-  const status = ROUND_STATUS[roundStatusOf(matches)]
+  childMatches.forEach((child, j) => {
+    const childCx = ((j + 0.5) / childCount) * 1000
+    const active = ACTIVE_CHILD_STATUSES.includes(child.status)
+    parents
+      .filter((p) => p.nextMatchId === child.id)
+      .forEach((parent) => {
+        const pi = parents.indexOf(parent)
+        const parentCx = ((pi + 0.5) / parents.length) * 1000
+        paths.push({ d: `M ${parentCx} 0 V 50 H ${childCx} V 100`, active })
+      })
+  })
+
   return (
-    <div className="flex items-center gap-2">
-      <p className="font-heading text-sm font-bold">{label}</p>
-      <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", status.cls)}>
-        {status.label}
-      </span>
-    </div>
+    <svg viewBox="0 0 1000 100" preserveAspectRatio="none" className="block h-(--gap) w-full">
+      {paths.map((p, i) => (
+        <path
+          key={i}
+          d={p.d}
+          fill="none"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={p.active ? "stroke-accent" : "stroke-border"}
+        />
+      ))}
+    </svg>
   )
 }
 
-function RoundConnector() {
+function MatchRow({
+  matches,
+  renderMatch,
+}: {
+  matches: Match[]
+  renderMatch: (m: Match) => React.ReactNode
+}) {
   return (
-    <div className="flex flex-col items-center gap-1 py-1">
-      <div className="h-4 w-px bg-border" />
-      <div className="grid size-[30px] shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-        <ArrowDown className="size-4" />
-      </div>
-      <div className="h-4 w-px bg-border" />
-      <p className="text-[10px] font-bold tracking-wide text-muted-foreground uppercase">
-        Winners advance
-      </p>
+    <div className="flex w-full">
+      {matches.map((m) => (
+        <div key={m.id} style={{ width: `${100 / matches.length}%` }} className="flex justify-center">
+          {renderMatch(m)}
+        </div>
+      ))}
     </div>
   )
 }
@@ -64,7 +85,7 @@ export function BracketView({
   players: Record<string, PlayerInfo>
   /** Enables click-to-bet on BETTING_OPEN matches. Leave off for admin/read-only views. */
   bettable?: boolean
-  betsByMatch?: Record<string, string>
+  betsByMatch?: Record<string, MatchBet>
   canBet?: boolean
   /** Enables inline match management (betting, start, winner, override) from the tree. */
   adminMode?: boolean
@@ -84,15 +105,21 @@ export function BracketView({
   const roundNumbers = Array.from({ length: totalRounds }, (_, i) => i + 1)
   const bronze = matches.find((m) => m.isThirdPlaceMatch)
 
+  const roundsOfMatches = roundNumbers.map((round) =>
+    sortByMatchNumber(matches.filter((m) => m.round === round && !m.isThirdPlaceMatch))
+  )
+  const firstRoundCount = roundsOfMatches[0]?.length ?? 1
+
   function renderMatch(m: Match) {
     return (
       <MatchNode
         key={m.id}
         match={m}
+        totalRounds={totalRounds}
         player1={m.player1Id ? players[m.player1Id] : undefined}
         player2={m.player2Id ? players[m.player2Id] : undefined}
         bettable={bettable}
-        myBetPredictedWinnerId={betsByMatch?.[m.id] ?? null}
+        myBet={betsByMatch?.[m.id] ?? null}
         canBet={canBet}
         adminMode={adminMode}
         isDeveloper={isDeveloper}
@@ -101,28 +128,37 @@ export function BracketView({
   }
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <div className="no-scrollbar max-h-[74vh] overflow-auto">
-        <div className="mx-auto flex w-max min-w-full flex-col items-center gap-3">
-          {roundNumbers.map((round, idx) => {
-            const roundMatches = matches
-              .filter((m) => m.round === round && !m.isThirdPlaceMatch)
-              .sort((a, b) => a.matchNumber - b.matchNumber)
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-semibold text-muted-foreground">
+        {LEGEND.map((l) => (
+          <span key={l.label} className="flex items-center gap-1.5">
+            <span className={cn("size-2 rounded-full", l.dotClassName)} />
+            {l.label}
+          </span>
+        ))}
+      </div>
 
-            return (
-              <div key={round} className="flex flex-col items-center gap-2.5">
-                <RoundHeader label={getRoundLabel(round, totalRounds)} matches={roundMatches} />
-                <div className="flex flex-nowrap justify-center gap-3">
-                  {roundMatches.map(renderMatch)}
+      <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <div className="no-scrollbar max-h-[74vh] overflow-auto">
+          <div
+            className="mx-auto flex min-w-0 flex-col [--box:76px] [--gap:44px] [--slot:88px] min-[860px]:[--box:100px] min-[860px]:[--gap:56px] min-[860px]:[--slot:136px]"
+            style={{ width: `calc(var(--slot) * ${firstRoundCount})` }}
+          >
+            {roundsOfMatches.map((roundMatches, idx) => {
+              const isLast = idx === roundsOfMatches.length - 1
+              return (
+                <div key={roundMatches[0]?.round ?? idx}>
+                  <MatchRow matches={roundMatches} renderMatch={renderMatch} />
+                  {!isLast && (
+                    <ConnectorBand parents={roundMatches} childMatches={roundsOfMatches[idx + 1]} />
+                  )}
                 </div>
-                {idx < roundNumbers.length - 1 && <RoundConnector />}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
 
           {bronze && (
-            <div className="mt-1 flex flex-col items-center gap-2.5 border-t border-dashed border-border pt-4">
-              <RoundHeader label="3rd Place Match" matches={[bronze]} />
+            <div className="mt-4 flex w-fit min-w-full justify-center border-t border-dashed border-border pt-4">
               {renderMatch(bronze)}
             </div>
           )}

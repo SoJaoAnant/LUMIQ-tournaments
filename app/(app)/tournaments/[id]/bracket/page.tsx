@@ -34,7 +34,12 @@ export default async function TournamentBracketPage({
     isAdmin ? db.participant.count({ where: { tournamentId: id } }) : Promise.resolve(0),
   ])
 
-  const betsByMatch = Object.fromEntries(myBets.map((b) => [b.matchId, b.predictedWinnerId]))
+  const betsByMatch = Object.fromEntries(
+    myBets.map((b) => [
+      b.matchId,
+      { predictedWinnerId: b.predictedWinnerId, won: b.won, pointsEarned: b.pointsEarned, pointsSpent: b.pointsSpent },
+    ])
+  )
 
   return (
     <div className="flex flex-col gap-4">

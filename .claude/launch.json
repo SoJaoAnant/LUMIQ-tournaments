@@ -10,8 +10,8 @@
     {
       "name": "design-reference",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "4001", "--directory", "design_handoff_tournament_platform/reference"],
-      "port": 4001
+      "runtimeArgs": ["-m", "http.server", "4002", "--directory", "design_handoff_bracket_tree/reference"],
+      "port": 4002
     },
     {
       "name": "tournament-app-scratch",
