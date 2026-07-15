@@ -140,10 +140,7 @@ export function BetBuilder({
   return (
     <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive">
-        <span className="relative flex size-1.5">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-destructive/70" />
-          <span className="relative inline-flex size-1.5 rounded-full bg-destructive" />
-        </span>
+        <span className="inline-flex size-1.5 rounded-full bg-destructive" />
         OPEN NOW · {getRoundLabel(round, totalRounds).toUpperCase()}
       </div>
       <p className="mb-4 text-xs text-muted-foreground">Locks the moment this match goes live.</p>

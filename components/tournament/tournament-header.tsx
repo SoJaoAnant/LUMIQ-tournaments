@@ -34,12 +34,7 @@ export function TournamentHeader({
             pulsing ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
           )}
         >
-          {pulsing && (
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-destructive/70" />
-              <span className="relative inline-flex size-2 rounded-full bg-destructive" />
-            </span>
-          )}
+          {pulsing && <span className="inline-flex size-2 rounded-full bg-destructive" />}
           <span>
             {stage.roundLabel}
             {stage.bettingOpen && " · Betting open"}

@@ -30,7 +30,7 @@ export function WalletPointsBadge({
           "grid shrink-0 place-items-center rounded-full shadow-inner",
           isNegative
             ? "bg-[radial-gradient(circle_at_35%_30%,#fca5a5,#ef4444_68%,#b91c1c)]"
-            : "bg-[radial-gradient(circle_at_35%_30%,#fbe6a0,#e9b949_68%,#c8971f)] motion-safe:animate-pulse",
+            : "bg-[radial-gradient(circle_at_35%_30%,#fbe6a0,#e9b949_68%,#c8971f)]",
           isSm ? "size-5" : "size-7"
         )}
       >

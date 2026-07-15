@@ -89,10 +89,7 @@ export function HeroMatchCard({
 
       <div className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
         {(match.status === "LIVE" || match.status === "BETTING_OPEN") && (
-          <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-white/70" />
-            <span className="relative inline-flex size-1.5 rounded-full bg-white" />
-          </span>
+          <span className="inline-flex size-1.5 rounded-full bg-white" />
         )}
         {pillLabel}
       </div>

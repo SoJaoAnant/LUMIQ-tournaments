@@ -71,7 +71,7 @@ export function WinnersPodium({ winner, runnerUp, thirdPlace }: Podium) {
           <div key={place.label} className={cn("flex w-24 flex-col items-center gap-3 sm:w-32", place.order)}>
             <div className="relative flex flex-col items-center gap-2">
               {isChampion && (
-                <Crown className="absolute -top-7 size-6 -rotate-6 text-amber-400 motion-safe:animate-bounce" />
+                <Crown className="absolute -top-7 size-6 -rotate-6 text-amber-400" />
               )}
               <div
                 className={cn(

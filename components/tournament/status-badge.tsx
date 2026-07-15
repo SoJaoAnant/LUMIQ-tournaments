@@ -18,7 +18,7 @@ const STATUS_CLASS: Record<TournamentStatus, string> = {
   REGISTRATION_OPEN: "bg-secondary/40 text-secondary-foreground",
   REGISTRATION_CLOSED: "bg-secondary/25 text-secondary-foreground",
   BRACKET_GENERATED: "bg-primary/12 text-primary",
-  IN_PROGRESS: "bg-accent/15 text-accent animate-pulse",
+  IN_PROGRESS: "bg-accent/15 text-accent",
   COMPLETED: "bg-primary/15 text-primary",
   ARCHIVED: "bg-muted-foreground/10 text-muted-foreground",
 }
