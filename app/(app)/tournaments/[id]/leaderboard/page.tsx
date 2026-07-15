@@ -47,7 +47,7 @@ export default async function TournamentLeaderboardPage({
 
   const reachedLabel = (p: (typeof participants)[number]) => {
     if (p.id === tournament.winnerParticipantId) return "Champion"
-    if (p.id === tournament.runnerUpParticipantId) return "Runner-up"
+    if (p.id === tournament.runnerUpParticipantId) return "2nd place"
     if (p.id === tournament.thirdPlaceParticipantId) return "3rd Place"
     const roundLabel = getRoundLabel(p.currentRound, totalRounds)
     return p.eliminated ? `Out · ${roundLabel}` : `Active · ${roundLabel}`

@@ -11,7 +11,7 @@ export function LeaderboardToggle({
   bettors: React.ReactNode
   players: React.ReactNode
 }) {
-  const [tab, setTab] = useState<"bettors" | "players">("bettors")
+  const [tab, setTab] = useState<"bettors" | "players">("players")
 
   return (
     <div className="flex flex-col gap-4">

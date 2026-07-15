@@ -106,7 +106,14 @@ export function BracketSwapPanel({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <Select value={aValue} onValueChange={(value) => setAValue(value ?? "")}>
           <SelectTrigger className="w-full sm:w-64">
-            <SelectValue placeholder="Player A" />
+            <SelectValue>
+              {(value: string | null) => {
+                const s = slots.find((s) => slotKey(s) === value)
+                return s
+                  ? `${getRoundLabel(s.round, totalRounds)} · M${s.matchNumber} — ${s.playerName}`
+                  : "Player A"
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {slots.map((s) => (
@@ -119,7 +126,14 @@ export function BracketSwapPanel({
         <span className="hidden text-xs font-semibold text-muted-foreground sm:inline">⇄</span>
         <Select value={bValue} onValueChange={(value) => setBValue(value ?? "")}>
           <SelectTrigger className="w-full sm:w-64">
-            <SelectValue placeholder="Player B" />
+            <SelectValue>
+              {(value: string | null) => {
+                const s = slots.find((s) => slotKey(s) === value)
+                return s
+                  ? `${getRoundLabel(s.round, totalRounds)} · M${s.matchNumber} — ${s.playerName}`
+                  : "Player B"
+              }}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {slots.map((s) => (
