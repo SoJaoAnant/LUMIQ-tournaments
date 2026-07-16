@@ -25,9 +25,9 @@ const PLACES = [
     height: "h-28",
     icon: Medal,
     order: "order-1",
-    ring: "ring-zinc-300 dark:ring-zinc-600",
-    avatarBg: "bg-gradient-to-br from-zinc-200 to-zinc-400 text-zinc-700",
-    blockBg: "bg-gradient-to-t from-zinc-200/70 to-zinc-100/40 dark:from-zinc-700/40 dark:to-zinc-800/20",
+    border: "border-zinc-300 dark:border-zinc-600",
+    avatarBg: "bg-zinc-300 text-zinc-700",
+    blockBg: "bg-zinc-100 dark:bg-zinc-800/40",
     labelColor: "text-zinc-500",
     iconColor: "text-zinc-400",
   },
@@ -37,9 +37,9 @@ const PLACES = [
     height: "h-40",
     icon: Trophy,
     order: "order-2",
-    ring: "ring-amber-300 dark:ring-amber-500/60",
-    avatarBg: "bg-[radial-gradient(circle_at_35%_30%,#fde68a,#f5c542_60%,#c8971f)] text-amber-950",
-    blockBg: "bg-gradient-to-t from-amber-200/70 to-amber-50/40 dark:from-amber-500/20 dark:to-amber-500/5",
+    border: "border-amber-400 dark:border-amber-500/60",
+    avatarBg: "bg-amber-400 text-amber-950",
+    blockBg: "bg-amber-100 dark:bg-amber-500/10",
     labelColor: "text-amber-600 dark:text-amber-400",
     iconColor: "text-amber-500",
   },
@@ -49,9 +49,9 @@ const PLACES = [
     height: "h-20",
     icon: Medal,
     order: "order-3",
-    ring: "ring-orange-300 dark:ring-orange-700/60",
-    avatarBg: "bg-gradient-to-br from-orange-300 to-orange-500 text-orange-950",
-    blockBg: "bg-gradient-to-t from-orange-200/60 to-orange-50/30 dark:from-orange-800/30 dark:to-orange-900/10",
+    border: "border-orange-400 dark:border-orange-700/60",
+    avatarBg: "bg-orange-400 text-orange-950",
+    blockBg: "bg-orange-100 dark:bg-orange-900/20",
     labelColor: "text-orange-600 dark:text-orange-400",
     iconColor: "text-orange-500",
   },
@@ -75,9 +75,9 @@ export function WinnersPodium({ winner, runnerUp, thirdPlace }: Podium) {
               )}
               <div
                 className={cn(
-                  "grid size-14 shrink-0 place-items-center rounded-full font-heading text-lg font-bold shadow-md ring-4 sm:size-16",
+                  "grid size-14 shrink-0 place-items-center rounded-full border-2 font-heading text-lg font-bold sm:size-16",
                   place.avatarBg,
-                  place.ring
+                  place.border
                 )}
               >
                 {initials(name)}
@@ -87,7 +87,7 @@ export function WinnersPodium({ winner, runnerUp, thirdPlace }: Podium) {
 
             <div
               className={cn(
-                "flex w-full flex-col items-center justify-start gap-1 rounded-t-2xl border border-b-0 border-border/60 pt-3 shadow-inner",
+                "flex w-full flex-col items-center justify-start gap-1 rounded-t-2xl border border-b-0 border-border/60 pt-3",
                 place.height,
                 place.blockBg
               )}

@@ -44,21 +44,20 @@ export default async function TournamentOverviewPage({
     <div className={cn("grid min-w-0 gap-4", canSeeAnnouncements && "lg:grid-cols-[1.55fr_1fr]")}>
       <div className="flex min-w-0 flex-col gap-4">
         {showResultsLink ? (
-          <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(120deg,#7A7DE8,#898CEC_45%,#E583BA)] p-6 text-white shadow-lg shadow-primary/25 sm:p-8">
-            <div className="pointer-events-none absolute -top-12 -right-12 size-48 rounded-full bg-white/10 blur-2xl" />
-            <div className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
+          <div className="rounded-3xl bg-primary p-6 text-white sm:p-8">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
               <Trophy className="size-3.5" />
               Tournament ended
             </div>
-            <p className="relative mt-4 font-heading text-2xl font-bold sm:text-3xl">
+            <p className="mt-4 font-heading text-2xl font-bold sm:text-3xl">
               This cup has wrapped up
             </p>
-            <p className="relative mt-1 text-sm text-white/80">
+            <p className="mt-1 text-sm text-white/80">
               See who took the trophy and who was the best bettor of this tournament.
             </p>
             <Link
               href={`/tournaments/${id}/results`}
-              className="relative mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-primary shadow-sm transition-transform hover:scale-[1.01]"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-primary"
             >
               <Sparkles className="size-4" />
               View results — see who won →
