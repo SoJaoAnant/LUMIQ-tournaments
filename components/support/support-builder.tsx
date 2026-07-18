@@ -4,8 +4,8 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-import { placeBet } from "@/lib/actions/bets"
-import { getBetStake } from "@/lib/betting"
+import { placeSupport } from "@/lib/actions/support"
+import { getSupportStake } from "@/lib/support"
 import { getRoundLabel } from "@/lib/bracket"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { Button } from "@/components/ui/button"
@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 
 type PlayerInfo = { name: string; seed: number; eliminated: boolean }
 
-const CONFETTI_COLORS = ["#898CEC", "#E583BA", "#B1CEF8", "#E9B949"]
+const CONFETTI_COLORS = ["#F0934D", "#898CEC", "#E583BA", "#E9B949"]
 
 function ConfettiBurst() {
   return (
@@ -89,7 +89,7 @@ function PlayerTile({
   )
 }
 
-export function BetBuilder({
+export function SupportBuilder({
   matchId,
   round,
   totalRounds,
@@ -97,7 +97,7 @@ export function BetBuilder({
   player2Id,
   players,
   existingPredictedWinnerId,
-  canBet,
+  canSupport,
 }: {
   matchId: string
   round: number
@@ -106,7 +106,7 @@ export function BetBuilder({
   player2Id: string
   players: Record<string, PlayerInfo>
   existingPredictedWinnerId: string | null
-  canBet: boolean
+  canSupport: boolean
 }) {
   const router = useRouter()
   const [pick, setPick] = useState<string | null>(existingPredictedWinnerId)
@@ -118,20 +118,20 @@ export function BetBuilder({
   const p1 = players[player1Id]
   const p2 = players[player2Id]
   const pickedName = pick === player1Id ? p1?.name : p2?.name
-  const stake = getBetStake(round)
+  const stake = getSupportStake(round)
 
   function handleLock() {
     if (!pick) return
     startTransition(async () => {
       try {
-        await placeBet(matchId, pick)
+        await placeSupport(matchId, pick)
         setConfirmOpen(false)
         toast.success(`Locked in on ${pickedName} — win ${stake * 2} points if they take it!`)
         setBurst(true)
         setTimeout(() => setBurst(false), 950)
         router.refresh()
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Couldn't place bet")
+        toast.error(err instanceof Error ? err.message : "Couldn't give support")
         setConfirmOpen(false)
       }
     })
@@ -172,24 +172,24 @@ export function BetBuilder({
             "w-full",
             locked && "bg-[#3FBF87] text-white shadow-none hover:bg-[#3FBF87]"
           )}
-          disabled={!pick || locked || isPending || !canBet}
+          disabled={!pick || locked || isPending || !canSupport}
           onClick={() => setConfirmOpen(true)}
         >
-          {locked ? `✓ Locked in on ${pickedName}` : pick ? "Lock in your bet" : "Pick a player first"}
+          {locked ? `✓ Locked in on ${pickedName}` : pick ? "Lock in your support" : "Pick a player first"}
         </Button>
         {burst && <ConfettiBurst />}
       </div>
 
-      {!canBet && !locked && (
+      {!canSupport && !locked && (
         <p className="mt-2 text-center text-xs text-destructive">
-          You don&apos;t have enough betting points left.
+          You don&apos;t have enough support points left.
         </p>
       )}
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Lock your bet?</DialogTitle>
+            <DialogTitle>Lock in your support?</DialogTitle>
             <DialogDescription>
               You&apos;re backing <strong className="text-foreground">{pickedName}</strong>. Costs{" "}
               {stake} point{stake === 1 ? "" : "s"}, wins {stake * 2} back if they take the match —

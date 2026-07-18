@@ -32,7 +32,7 @@ export function ResetTournamentButton({ tournamentId }: { tournamentId: string }
         <DialogHeader>
           <DialogTitle>Reset this tournament?</DialogTitle>
           <DialogDescription>
-            Deletes every match, bet, and wallet, and un-eliminates all participants back to
+            Deletes every match, support record, and wallet, and un-eliminates all participants back to
             round 1. Participants themselves stay registered so the bracket can be regenerated.
             This can&apos;t be undone.
           </DialogDescription>

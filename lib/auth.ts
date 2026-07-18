@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 import type { Role, User } from "@prisma/client"
 
 import { db } from "@/lib/db"
-import { hasAtLeastRole, isAllowedEmail } from "@/lib/rbac"
+import { hasAtLeastRole } from "@/lib/rbac"
 
 /**
  * Resolves the current DB user for this request. The Clerk webhook is the
@@ -27,15 +27,15 @@ export async function getCurrentUser(): Promise<User | null> {
     (e) => e.id === clerkUser.primaryEmailAddressId
   )?.emailAddress
 
-  if (!isAllowedEmail(email)) return null
+  if (!email) return null
 
   const name =
     [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
-    email!.split("@")[0]
+    email.split("@")[0]
 
   try {
     return await db.user.create({
-      data: { clerkId: userId, email: email!, name },
+      data: { clerkId: userId, email, name },
     })
   } catch {
     // Lost a create race against the webhook — it already inserted the row.
@@ -45,8 +45,8 @@ export async function getCurrentUser(): Promise<User | null> {
 
 /**
  * For Server Components/pages: redirects unauthenticated visitors to sign-in,
- * and Clerk-authenticated-but-unrecognized visitors (e.g. wrong email domain)
- * to /unauthorized instead of bouncing them back into a sign-in loop.
+ * and Clerk-authenticated-but-unrecognized visitors to /unauthorized instead
+ * of bouncing them back into a sign-in loop.
  */
 export async function requireUser(): Promise<User> {
   const { userId } = await auth()

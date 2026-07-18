@@ -27,7 +27,7 @@ export async function importParticipants(tournamentId: string, emails: string[])
   const toCreate = users.filter((u) => !alreadyJoined.has(u.id))
   if (toCreate.length > 0) {
     await db.participant.createMany({
-      data: toCreate.map((u) => ({ userId: u.id, tournamentId, seed: 0 })),
+      data: toCreate.map((u) => ({ userId: u.id, tournamentId, seed: 0, isPlayer: true })),
     })
   }
 

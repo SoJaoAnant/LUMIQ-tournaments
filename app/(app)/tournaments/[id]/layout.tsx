@@ -10,7 +10,7 @@ import { TournamentStatusBadge } from "@/components/tournament/status-badge"
 import { TournamentTabs } from "@/components/tournament/tournament-tabs"
 import { TournamentHeader } from "@/components/tournament/tournament-header"
 import { JoinLeaveButton } from "@/components/tournament/join-leave-button"
-import { WalletPointsBadge } from "@/components/betting/wallet-points-badge"
+import { WalletPointsBadge } from "@/components/support/wallet-points-badge"
 
 export default async function TournamentDetailLayout({
   children,
@@ -30,7 +30,7 @@ export default async function TournamentDetailLayout({
     db.tournamentWallet.findUnique({
       where: { userId_tournamentId: { userId: user.id, tournamentId: id } },
     }),
-    db.participant.count({ where: { tournamentId: id } }),
+    db.participant.count({ where: { tournamentId: id, isPlayer: true } }),
     getBracketData(id),
   ])
 
@@ -38,7 +38,7 @@ export default async function TournamentDetailLayout({
     ? Math.max(...matches.map((m) => m.round))
     : computeRounds(Math.max(participantCount, 2))
   const stage = getTournamentStage(matches, totalRounds)
-  const bettingOpen = matches.some((m) => m.status === "BETTING_OPEN")
+  const supportOpen = matches.some((m) => m.status === "SUPPORT_OPEN")
 
   return (
     <div className="flex flex-col gap-4">
@@ -56,7 +56,7 @@ export default async function TournamentDetailLayout({
 
       <TournamentTabs
         tournamentId={id}
-        bettingOpen={bettingOpen}
+        supportOpen={supportOpen}
         canManage={hasAtLeastRole(user.role, "ADMIN")}
       />
 

@@ -34,7 +34,7 @@ export const getBracketData = cache(async (tournamentId: string) => {
 export type TournamentStage = {
   roundLabel: string
   live: boolean
-  bettingOpen: boolean
+  supportOpen: boolean
   concluded: boolean
 }
 
@@ -47,7 +47,7 @@ export function getFeaturedMatch(matches: Match[]): Match | null {
 
   return (
     real.find((m) => m.status === "LIVE") ??
-    real.find((m) => m.status === "BETTING_OPEN") ??
+    real.find((m) => m.status === "SUPPORT_OPEN") ??
     [...real].filter((m) => m.status === "SCHEDULED").sort(byRound)[0] ??
     [...real].sort((a, b) => b.round - a.round)[0]
   )
@@ -63,7 +63,7 @@ export function getTournamentStage(matches: Match[], totalRounds: number): Tourn
   return {
     roundLabel: getRoundLabel(match.round, totalRounds),
     live: match.status === "LIVE",
-    bettingOpen: match.status === "BETTING_OPEN",
+    supportOpen: match.status === "SUPPORT_OPEN",
     concluded,
   }
 }

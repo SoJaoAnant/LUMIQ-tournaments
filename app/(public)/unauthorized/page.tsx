@@ -12,12 +12,8 @@ export default function UnauthorizedPage() {
           <ShieldAlert className="size-10 text-accent" />
           <CardTitle>Account not recognized</CardTitle>
           <CardDescription>
-            This app is restricted to company email addresses. If you signed in with a
-            personal Microsoft account, please sign out and try again with your{" "}
-            {process.env.ALLOWED_EMAIL_DOMAIN
-              ? `@${process.env.ALLOWED_EMAIL_DOMAIN}`
-              : "company"}{" "}
-            account.
+            We couldn&apos;t find or verify your account. Please sign out and try again, or
+            contact an admin if this keeps happening.
           </CardDescription>
         </CardHeader>
         <CardContent>

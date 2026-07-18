@@ -19,7 +19,7 @@ export const PERMISSIONS = {
   USER: [
     "tournament:join",
     "tournament:leave",
-    "bet:place",
+    "support:give",
     "leaderboard:view",
     "bracket:view",
     "matches:view",
@@ -30,7 +30,7 @@ export const PERMISSIONS = {
     "tournament:delete",
     "participants:manage",
     "registration:toggle",
-    "betting:toggle",
+    "support:toggle",
     "bracket:generate",
     "matches:schedule",
     "matches:enterResult",
@@ -46,10 +46,3 @@ export const PERMISSIONS = {
     "featureFlags:manage",
   ],
 } as const
-
-export function isAllowedEmail(email: string | null | undefined) {
-  if (!email) return false
-  const allowedDomain = process.env.ALLOWED_EMAIL_DOMAIN
-  if (!allowedDomain) return true
-  return email.toLowerCase().endsWith(`@${allowedDomain.toLowerCase()}`)
-}

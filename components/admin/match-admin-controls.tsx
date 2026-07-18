@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import type { Match } from "@prisma/client"
 import { Play, ShieldAlert, Ticket, Trophy } from "lucide-react"
 
-import { closeBetting, declareWinner, openBetting, startMatch } from "@/lib/actions/matches"
+import { closeSupport, declareWinner, openSupport, startMatch } from "@/lib/actions/matches"
 import { overrideMatch } from "@/lib/actions/developer"
 import { Button } from "@/components/ui/button"
 import {
@@ -104,26 +104,26 @@ export function MatchAdminControls({
           size="sm"
           disabled={isPending}
           loading={isPending}
-          onClick={() => run(() => openBetting(match.id), "Betting opened")}
+          onClick={() => run(() => openSupport(match.id), "Support opened")}
         >
           <Ticket className="size-3.5" />
-          Open Betting
+          Open Support
         </Button>
       )}
 
-      {match.status === "BETTING_OPEN" && (
+      {match.status === "SUPPORT_OPEN" && (
         <Button
           variant="outline"
           size="sm"
           disabled={isPending}
           loading={isPending}
-          onClick={() => run(() => closeBetting(match.id), "Betting closed")}
+          onClick={() => run(() => closeSupport(match.id), "Support closed")}
         >
-          Close Betting
+          Close Support
         </Button>
       )}
 
-      {(match.status === "SCHEDULED" || match.status === "BETTING_OPEN") && bothKnown && (
+      {(match.status === "SCHEDULED" || match.status === "SUPPORT_OPEN") && bothKnown && (
         <Button
           size="sm"
           disabled={isPending}

@@ -3,7 +3,7 @@ import type { Prisma } from "@prisma/client"
 /**
  * Call after every match resolution. If the final (and bronze match, when one
  * exists) are now finished, marks the tournament COMPLETED and records the
- * three podium finishers plus the best bettor. No-op otherwise.
+ * three podium finishers plus the best supporter. No-op otherwise.
  */
 export async function checkAndCompleteTournament(
   tx: Prisma.TransactionClient,
@@ -22,7 +22,7 @@ export async function checkAndCompleteTournament(
   const runnerUpId =
     final.winnerId === final.player1Id ? final.player2Id : final.player1Id
 
-  const bestBettorId = await computeBestBettor(tx, tournamentId)
+  const bestSupporterId = await computeBestSupporter(tx, tournamentId)
 
   await tx.tournament.update({
     where: { id: tournamentId },
@@ -31,25 +31,25 @@ export async function checkAndCompleteTournament(
       winnerParticipantId: final.winnerId,
       runnerUpParticipantId: runnerUpId,
       thirdPlaceParticipantId: bronze?.winnerId ?? null,
-      bestBettorId,
+      bestSupporterId,
     },
   })
 }
 
-async function computeBestBettor(tx: Prisma.TransactionClient, tournamentId: string) {
+async function computeBestSupporter(tx: Prisma.TransactionClient, tournamentId: string) {
   const wallets = await tx.tournamentWallet.findMany({ where: { tournamentId } })
   if (wallets.length === 0) return null
 
-  const bets = await tx.bet.findMany({
+  const support = await tx.support.findMany({
     where: { match: { tournamentId }, won: { not: null } },
   })
 
   const statsByUser = new Map<string, { correct: number; total: number }>()
-  for (const bet of bets) {
-    const stats = statsByUser.get(bet.userId) ?? { correct: 0, total: 0 }
+  for (const s of support) {
+    const stats = statsByUser.get(s.userId) ?? { correct: 0, total: 0 }
     stats.total += 1
-    if (bet.won) stats.correct += 1
-    statsByUser.set(bet.userId, stats)
+    if (s.won) stats.correct += 1
+    statsByUser.set(s.userId, stats)
   }
 
   const ranked = wallets

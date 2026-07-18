@@ -61,7 +61,7 @@ export function TournamentRowActions({ tournamentId }: { tournamentId: string })
           <DialogHeader>
             <DialogTitle>Delete this tournament?</DialogTitle>
             <DialogDescription>
-              This permanently deletes the tournament, its participants, matches, and bets. This
+              This permanently deletes the tournament, its participants, matches, and support records. This
               can&apos;t be undone.
             </DialogDescription>
           </DialogHeader>

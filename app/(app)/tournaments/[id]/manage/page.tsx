@@ -29,27 +29,30 @@ export default async function TournamentManagePage({
   const tournament = await db.tournament.findUnique({ where: { id } })
   if (!tournament) notFound()
 
-  const [participants, { matches, players }, bets] = await Promise.all([
+  const [participants, { matches, players }, support] = await Promise.all([
     db.participant.findMany({
       where: { tournamentId: id },
       include: { user: { select: { name: true, email: true } } },
       orderBy: { seed: "asc" },
     }),
     getBracketData(id),
-    db.bet.findMany({ where: { match: { tournamentId: id } } }),
+    db.support.findMany({ where: { match: { tournamentId: id } } }),
   ])
+
+  const playerCount = participants.filter((p) => p.isPlayer).length
+  const supporterCount = participants.length - playerCount
 
   const canRemove = tournament.status === "DRAFT" || tournament.status === "REGISTRATION_OPEN"
   const canDisqualify =
     tournament.status === "BRACKET_GENERATED" || tournament.status === "IN_PROGRESS"
 
   const totalRounds = matches.length ? Math.max(...matches.map((m) => m.round)) : 0
-  const betsByMatch = new Map<string, typeof bets>()
-  bets.forEach((b) => {
-    betsByMatch.set(b.matchId, [...(betsByMatch.get(b.matchId) ?? []), b])
+  const supportByMatch = new Map<string, typeof support>()
+  support.forEach((s) => {
+    supportByMatch.set(s.matchId, [...(supportByMatch.get(s.matchId) ?? []), s])
   })
-  const matchesWithBets = matches
-    .filter((m) => betsByMatch.has(m.id))
+  const matchesWithSupport = matches
+    .filter((m) => supportByMatch.has(m.id))
     .sort((a, b) => a.round - b.round || a.matchNumber - b.matchNumber)
 
   return (
@@ -82,7 +85,8 @@ export default async function TournamentManagePage({
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Users className="size-4 text-primary" />
-            Participants ({participants.length})
+            Participants ({playerCount} player{playerCount === 1 ? "" : "s"}
+            {supporterCount > 0 ? `, ${supporterCount} supporter${supporterCount === 1 ? "" : "s"}` : ""})
           </CardTitle>
           {canRemove && <ImportParticipantsDialog tournamentId={id} />}
         </CardHeader>
@@ -96,6 +100,7 @@ export default async function TournamentManagePage({
                   <TableHead>Seed</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
                   <TableHead>Status</TableHead>
                   {(canRemove || canDisqualify) && <TableHead className="w-10" />}
                 </TableRow>
@@ -103,11 +108,18 @@ export default async function TournamentManagePage({
               <TableBody>
                 {participants.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell>{p.seed || "—"}</TableCell>
+                    <TableCell>{p.isPlayer ? p.seed || "—" : "—"}</TableCell>
                     <TableCell className="font-medium">{p.user.name}</TableCell>
                     <TableCell className="text-muted-foreground">{p.user.email}</TableCell>
                     <TableCell>
-                      {p.eliminated ? (
+                      <Badge variant={p.isPlayer ? "default" : "secondary"}>
+                        {p.isPlayer ? "Player" : "Supporter"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {!p.isPlayer ? (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      ) : p.eliminated ? (
                         <Badge variant="destructive">Eliminated</Badge>
                       ) : (
                         <Badge className="bg-primary text-primary-foreground">Active</Badge>
@@ -118,7 +130,7 @@ export default async function TournamentManagePage({
                         {canRemove && (
                           <RemoveParticipantButton tournamentId={id} participantId={p.id} />
                         )}
-                        {canDisqualify && !p.eliminated && (
+                        {canDisqualify && p.isPlayer && !p.eliminated && (
                           <DisqualifyParticipantButton
                             tournamentId={id}
                             participantId={p.id}
@@ -139,37 +151,37 @@ export default async function TournamentManagePage({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <BarChart3 className="size-4 text-primary" />
-            Betting Stats
+            Support Stats
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="grid min-w-0 gap-4 sm:grid-cols-3">
             <div className="min-w-0 rounded-xl border border-border p-4">
-              <p className="text-xs text-muted-foreground">Total Bets</p>
-              <p className="text-2xl font-semibold">{bets.length}</p>
+              <p className="text-xs text-muted-foreground">Total Support</p>
+              <p className="text-2xl font-semibold">{support.length}</p>
             </div>
             <div className="min-w-0 rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Points Wagered</p>
               <p className="text-2xl font-semibold">
-                {bets.reduce((sum, b) => sum + b.pointsSpent, 0)}
+                {support.reduce((sum, s) => sum + s.pointsSpent, 0)}
               </p>
             </div>
             <div className="min-w-0 rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Points Paid Out</p>
               <p className="text-2xl font-semibold">
-                {bets.reduce((sum, b) => sum + b.pointsEarned, 0)}
+                {support.reduce((sum, s) => sum + s.pointsEarned, 0)}
               </p>
             </div>
           </div>
 
-          {matchesWithBets.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No bets placed yet.</p>
+          {matchesWithSupport.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No support given yet.</p>
           ) : (
             <div className="flex flex-col gap-2">
-              {matchesWithBets.map((m) => {
-                const matchBets = betsByMatch.get(m.id) ?? []
-                const p1Bets = matchBets.filter((b) => b.predictedWinnerId === m.player1Id).length
-                const p2Bets = matchBets.filter((b) => b.predictedWinnerId === m.player2Id).length
+              {matchesWithSupport.map((m) => {
+                const matchSupport = supportByMatch.get(m.id) ?? []
+                const p1Support = matchSupport.filter((s) => s.predictedWinnerId === m.player1Id).length
+                const p2Support = matchSupport.filter((s) => s.predictedWinnerId === m.player2Id).length
                 return (
                   <div key={m.id} className="rounded-xl border border-border p-3">
                     <p className="mb-1.5 text-xs font-medium text-muted-foreground">
@@ -178,11 +190,11 @@ export default async function TournamentManagePage({
                     <div className="flex items-center justify-between text-sm">
                       <span>
                         {m.player1Id ? players[m.player1Id]?.name : "TBD"} —{" "}
-                        <strong>{p1Bets}</strong> bets
+                        <strong>{p1Support}</strong> support
                       </span>
                       <span>
                         {m.player2Id ? players[m.player2Id]?.name : "TBD"} —{" "}
-                        <strong>{p2Bets}</strong> bets
+                        <strong>{p2Support}</strong> support
                       </span>
                     </div>
                   </div>
@@ -215,7 +227,7 @@ export default async function TournamentManagePage({
           </CardHeader>
           <CardContent className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Wipes every match, bet, and wallet, and un-eliminates all participants back to
+              Wipes every match, support record, and wallet, and un-eliminates all participants back to
               round 1. Can&apos;t be undone.
             </p>
             <ResetTournamentButton tournamentId={id} />

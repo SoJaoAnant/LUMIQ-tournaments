@@ -57,7 +57,7 @@ export function RouteProgressBar() {
     <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-1">
       <div
         className={cn(
-          "h-full bg-gradient-to-r from-primary via-[#7A7DE8] to-accent transition-[width,opacity] duration-300 ease-out",
+          "h-full bg-gradient-to-r from-primary via-[#E17B32] to-accent transition-[width,opacity] duration-300 ease-out",
           state === "loading" ? "w-[85%] duration-[4000ms]" : "w-full opacity-0"
         )}
       />

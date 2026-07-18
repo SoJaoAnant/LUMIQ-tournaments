@@ -2,7 +2,7 @@ import { Sparkles, Target, TrendingUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
-export function BestBettorCard({
+export function BestSupporterCard({
   name,
   points,
   accuracy,
@@ -15,7 +15,7 @@ export function BestBettorCard({
     <div className={cn("rounded-3xl bg-primary p-6 text-white sm:p-8")}>
       <div className="flex items-center gap-2 text-sm font-medium text-white/80">
         <Sparkles className="size-4" />
-        Best Bettor of the Tournament
+        Best Supporter of the Tournament
       </div>
 
       {name ? (
@@ -39,7 +39,7 @@ export function BestBettorCard({
           </div>
         </div>
       ) : (
-        <p className="mt-4 text-sm text-white/85">No betting activity this tournament.</p>
+        <p className="mt-4 text-sm text-white/85">No support activity this tournament.</p>
       )}
     </div>
   )

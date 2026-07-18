@@ -4,7 +4,7 @@ import { requireRoleForAction, ForbiddenError } from "@/lib/auth"
 import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { generateBracketMatches } from "@/lib/bracket"
-import { getInitialWalletPoints } from "@/lib/betting"
+import { getInitialWalletPoints } from "@/lib/support"
 import { revalidateTournamentPaths } from "@/lib/revalidate"
 
 export async function generateBracket(tournamentId: string) {
@@ -16,11 +16,12 @@ export async function generateBracket(tournamentId: string) {
   }
 
   const participants = await db.participant.findMany({ where: { tournamentId } })
-  if (participants.length < 2) {
-    throw new ForbiddenError("Need at least 2 participants to generate a bracket.")
+  const players = participants.filter((p) => p.isPlayer)
+  if (players.length < 2) {
+    throw new ForbiddenError("Need at least 2 players to generate a bracket.")
   }
 
-  const { rounds, matches, seeds } = generateBracketMatches(participants.map((p) => p.id))
+  const { rounds, matches, seeds } = generateBracketMatches(players.map((p) => p.id))
   const initialPoints = getInitialWalletPoints(rounds)
 
   await db.$transaction([
@@ -49,7 +50,7 @@ export async function generateBracket(tournamentId: string) {
         currentPoints: initialPoints,
       })),
     }),
-    ...participants.map((p) =>
+    ...players.map((p) =>
       db.participant.update({
         where: { id: p.id },
         data: {
@@ -66,7 +67,8 @@ export async function generateBracket(tournamentId: string) {
   await logAudit(admin.id, "tournament.bracket.generate", {
     tournamentId,
     rounds,
-    participantCount: participants.length,
+    playerCount: players.length,
+    supporterCount: participants.length - players.length,
   })
 
   revalidateTournamentPaths(tournamentId)

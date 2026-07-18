@@ -6,32 +6,32 @@ import { db } from "@/lib/db"
 import { resolveMatchWinner } from "@/lib/match-resolution"
 import { revalidateTournamentPaths as revalidateTournament } from "@/lib/revalidate"
 
-export async function openBetting(matchId: string) {
+export async function openSupport(matchId: string) {
   const admin = await requireRoleForAction("ADMIN")
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
 
   if (match.status !== "SCHEDULED") {
-    throw new ForbiddenError("Betting can only be opened for a scheduled match.")
+    throw new ForbiddenError("Support can only be opened for a scheduled match.")
   }
   if (!match.player1Id || !match.player2Id) {
-    throw new ForbiddenError("Both players must be known before opening betting.")
+    throw new ForbiddenError("Both players must be known before opening support.")
   }
 
-  await db.match.update({ where: { id: matchId }, data: { status: "BETTING_OPEN" } })
-  await logAudit(admin.id, "match.betting.open", { matchId })
+  await db.match.update({ where: { id: matchId }, data: { status: "SUPPORT_OPEN" } })
+  await logAudit(admin.id, "match.support.open", { matchId })
   revalidateTournament(match.tournamentId)
 }
 
-export async function closeBetting(matchId: string) {
+export async function closeSupport(matchId: string) {
   const admin = await requireRoleForAction("ADMIN")
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
 
-  if (match.status !== "BETTING_OPEN") {
-    throw new ForbiddenError("Betting isn't currently open for this match.")
+  if (match.status !== "SUPPORT_OPEN") {
+    throw new ForbiddenError("Support isn't currently open for this match.")
   }
 
   await db.match.update({ where: { id: matchId }, data: { status: "SCHEDULED" } })
-  await logAudit(admin.id, "match.betting.close", { matchId })
+  await logAudit(admin.id, "match.support.close", { matchId })
   revalidateTournament(match.tournamentId)
 }
 
@@ -39,8 +39,8 @@ export async function startMatch(matchId: string) {
   const admin = await requireRoleForAction("ADMIN")
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
 
-  if (match.status !== "SCHEDULED" && match.status !== "BETTING_OPEN") {
-    throw new ForbiddenError("Match must be scheduled (or in betting) to start.")
+  if (match.status !== "SCHEDULED" && match.status !== "SUPPORT_OPEN") {
+    throw new ForbiddenError("Match must be scheduled (or support-open) to start.")
   }
   if (!match.player1Id || !match.player2Id) {
     throw new ForbiddenError("Both players must be known before starting the match.")
@@ -68,11 +68,11 @@ export async function declareWinner(matchId: string, winnerId: string) {
 }
 
 /**
- * Opens betting on every currently-eligible match at once (both players
+ * Opens support on every currently-eligible match at once (both players
  * known, not yet started) — e.g. the whole first round right after the
  * bracket is generated, instead of opening each match one at a time.
  */
-export async function openAllBetting(tournamentId: string) {
+export async function openAllSupport(tournamentId: string) {
   const admin = await requireRoleForAction("ADMIN")
 
   const eligible = await db.match.findMany({
@@ -86,29 +86,29 @@ export async function openAllBetting(tournamentId: string) {
   })
 
   if (eligible.length === 0) {
-    throw new ForbiddenError("No matches are currently eligible for betting.")
+    throw new ForbiddenError("No matches are currently eligible for support.")
   }
 
   await db.match.updateMany({
     where: { id: { in: eligible.map((m) => m.id) } },
-    data: { status: "BETTING_OPEN" },
+    data: { status: "SUPPORT_OPEN" },
   })
 
-  await logAudit(admin.id, "match.betting.openAll", { tournamentId, count: eligible.length })
+  await logAudit(admin.id, "match.support.openAll", { tournamentId, count: eligible.length })
   revalidateTournament(tournamentId)
   return eligible.length
 }
 
-/** Closes betting on every currently-open match at once. */
-export async function closeAllBetting(tournamentId: string) {
+/** Closes support on every currently-open match at once. */
+export async function closeAllSupport(tournamentId: string) {
   const admin = await requireRoleForAction("ADMIN")
 
   const result = await db.match.updateMany({
-    where: { tournamentId, status: "BETTING_OPEN" },
+    where: { tournamentId, status: "SUPPORT_OPEN" },
     data: { status: "SCHEDULED" },
   })
 
-  await logAudit(admin.id, "match.betting.closeAll", { tournamentId, count: result.count })
+  await logAudit(admin.id, "match.support.closeAll", { tournamentId, count: result.count })
   revalidateTournament(tournamentId)
   return result.count
 }
@@ -116,8 +116,8 @@ export async function closeAllBetting(tournamentId: string) {
 /**
  * Swaps two players sitting in (possibly different) matches of the same round —
  * e.g. turning "A vs B" + "C vs D" into "A vs D" + "B vs C" by swapping B and D.
- * Restricted to matches that haven't started and have no bets yet, so no bet
- * ends up pointing at a player who's no longer in that match.
+ * Restricted to matches that haven't started and have no support yet, so no
+ * support ends up pointing at a player who's no longer in that match.
  */
 export async function swapBracketPlayers(
   matchAId: string,
@@ -149,12 +149,12 @@ export async function swapBracketPlayers(
     throw new ForbiddenError("Both matches must still be scheduled (not started) to swap players.")
   }
 
-  const [betsA, betsB] = await Promise.all([
-    db.bet.count({ where: { matchId: matchAId } }),
-    db.bet.count({ where: { matchId: matchBId } }),
+  const [supportA, supportB] = await Promise.all([
+    db.support.count({ where: { matchId: matchAId } }),
+    db.support.count({ where: { matchId: matchBId } }),
   ])
-  if (betsA > 0 || betsB > 0) {
-    throw new ForbiddenError("Can't swap — bets have already been placed on one of these matches.")
+  if (supportA > 0 || supportB > 0) {
+    throw new ForbiddenError("Can't swap — support has already been given on one of these matches.")
   }
 
   const playerAId = slotA === 1 ? matchA.player1Id : matchA.player2Id
@@ -194,7 +194,7 @@ export async function disqualifyParticipant(tournamentId: string, participantId:
   const currentMatch = await db.match.findFirst({
     where: {
       tournamentId,
-      status: { in: ["SCHEDULED", "BETTING_OPEN", "LIVE"] },
+      status: { in: ["SCHEDULED", "SUPPORT_OPEN", "LIVE"] },
       OR: [{ player1Id: participantId }, { player2Id: participantId }],
     },
   })

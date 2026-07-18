@@ -5,39 +5,39 @@ import { revalidatePath } from "next/cache"
 import { getCurrentUser, ForbiddenError } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { revalidateTournamentPaths } from "@/lib/revalidate"
-import { getBetStake } from "@/lib/betting"
+import { getSupportStake } from "@/lib/support"
 
-export async function placeBet(matchId: string, predictedWinnerId: string) {
+export async function placeSupport(matchId: string, predictedWinnerId: string) {
   const user = await getCurrentUser()
-  if (!user) throw new ForbiddenError("You must be signed in to place a bet.")
+  if (!user) throw new ForbiddenError("You must be signed in to show support.")
 
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
 
-  if (match.status !== "BETTING_OPEN") {
-    throw new ForbiddenError("Betting isn't open for this match.")
+  if (match.status !== "SUPPORT_OPEN") {
+    throw new ForbiddenError("Support isn't open for this match.")
   }
   if (predictedWinnerId !== match.player1Id && predictedWinnerId !== match.player2Id) {
-    throw new ForbiddenError("You can only bet on one of the two players in this match.")
+    throw new ForbiddenError("You can only support one of the two players in this match.")
   }
 
-  const existing = await db.bet.findUnique({
+  const existing = await db.support.findUnique({
     where: { userId_matchId: { userId: user.id, matchId } },
   })
-  if (existing) throw new ForbiddenError("You've already placed a bet on this match.")
+  if (existing) throw new ForbiddenError("You've already shown support for this match.")
 
   const wallet = await db.tournamentWallet.findUnique({
     where: { userId_tournamentId: { userId: user.id, tournamentId: match.tournamentId } },
   })
-  // Only gate on having *any* points left, not on covering the full stake — a bet
+  // Only gate on having *any* points left, not on covering the full stake — support
   // in a late, high-stakes round can intentionally push the wallet negative.
   if (!wallet || wallet.currentPoints < 1) {
-    throw new ForbiddenError("You don't have enough betting points left.")
+    throw new ForbiddenError("You don't have enough support points left.")
   }
 
-  const stake = getBetStake(match.round)
+  const stake = getSupportStake(match.round)
 
   await db.$transaction([
-    db.bet.create({
+    db.support.create({
       data: { userId: user.id, matchId, predictedWinnerId, pointsSpent: stake, pointsEarned: 0 },
     }),
     db.tournamentWallet.update({

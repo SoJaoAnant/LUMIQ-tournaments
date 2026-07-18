@@ -14,7 +14,7 @@ export default async function AdminTournamentsPage() {
 
   const tournaments = await db.tournament.findMany({
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { participants: true } } },
+    include: { _count: { select: { participants: { where: { isPlayer: true } } } } },
   })
 
   return (

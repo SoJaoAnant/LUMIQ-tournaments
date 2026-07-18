@@ -17,7 +17,7 @@ import { EmptyState } from "@/components/shared/empty-state"
 export default async function ProfilePage() {
   const user = await requireUser()
 
-  const bets = await db.bet.findMany({
+  const support = await db.support.findMany({
     where: { userId: user.id },
     include: { match: { include: { tournament: true } } },
     orderBy: { lockedAt: "desc" },
@@ -28,7 +28,7 @@ export default async function ProfilePage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
-        <p className="text-sm text-muted-foreground">Your account and betting history.</p>
+        <p className="text-sm text-muted-foreground">Your account and support history.</p>
       </div>
 
       <Card>
@@ -44,7 +44,7 @@ export default async function ProfilePage() {
             <p className="truncate font-medium">{user.name}</p>
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">Company email</p>
+            <p className="text-xs text-muted-foreground">Email</p>
             <p className="truncate font-medium">{user.email}</p>
           </div>
           <div className="min-w-0">
@@ -60,14 +60,14 @@ export default async function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Bet History</CardTitle>
+          <CardTitle className="text-base">Support History</CardTitle>
         </CardHeader>
         <CardContent>
-          {bets.length === 0 ? (
+          {support.length === 0 ? (
             <EmptyState
               icon={UserRound}
-              title="No bets placed yet"
-              description="Your bets across every tournament will show up here, including ones you've lost."
+              title="No support given yet"
+              description="Your support across every tournament will show up here, including ones you've lost."
             />
           ) : (
             <Table>
@@ -80,23 +80,23 @@ export default async function ProfilePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bets.map((bet) => (
-                  <TableRow key={bet.id}>
-                    <TableCell>{bet.match.tournament.title}</TableCell>
+                {support.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell>{s.match.tournament.title}</TableCell>
                     <TableCell>
-                      R{bet.match.round} · #{bet.match.matchNumber}
+                      R{s.match.round} · #{s.match.matchNumber}
                     </TableCell>
                     <TableCell>
-                      {bet.won === null ? (
+                      {s.won === null ? (
                         <Badge variant="outline">Pending</Badge>
-                      ) : bet.won ? (
+                      ) : s.won ? (
                         <Badge className="bg-primary text-primary-foreground">Won</Badge>
                       ) : (
                         <Badge variant="destructive">Lost</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      {bet.won === null ? "—" : bet.won ? `+${bet.pointsEarned}` : `-${bet.pointsSpent}`}
+                      {s.won === null ? "—" : s.won ? `+${s.pointsEarned}` : `-${s.pointsSpent}`}
                     </TableCell>
                   </TableRow>
                 ))}

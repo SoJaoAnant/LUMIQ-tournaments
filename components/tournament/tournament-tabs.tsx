@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils"
 
 export function TournamentTabs({
   tournamentId,
-  bettingOpen = false,
+  supportOpen = false,
   canManage = false,
 }: {
   tournamentId: string
-  bettingOpen?: boolean
+  supportOpen?: boolean
   /** Shows the admin-only "Manage" tab (edit, participants, bracket setup, stats). */
   canManage?: boolean
 }) {
@@ -22,7 +22,7 @@ export function TournamentTabs({
   const tabs = [
     { label: "Overview", href: base },
     { label: "Bracket", href: `${base}/bracket` },
-    { label: "Betting", href: `${base}/betting`, dot: bettingOpen },
+    { label: "Support", href: `${base}/support`, dot: supportOpen },
     { label: "Leaderboard", href: `${base}/leaderboard` },
     { label: "Info", href: `${base}/info` },
     ...(canManage ? [{ label: "Manage", href: `${base}/manage`, icon: Wrench }] : []),
@@ -41,7 +41,7 @@ export function TournamentTabs({
               className={cn(
                 "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors",
                 active
-                  ? "border-transparent bg-gradient-to-br from-primary to-[#7A7DE8] text-primary-foreground shadow-sm shadow-primary/25"
+                  ? "border-transparent bg-gradient-to-br from-primary to-[#E17B32] text-primary-foreground shadow-sm shadow-primary/25"
                   : "border-border bg-background text-muted-foreground hover:text-foreground"
               )}
             >

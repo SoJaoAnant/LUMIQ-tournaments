@@ -20,8 +20,8 @@ const headingFont = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "LUMIQ Tournaments",
-  description: "Internal tournament hosting & betting platform",
+  title: "LUMIQ League",
+  description: "Internal tournament hosting & support platform",
   icons: {
     icon: "/logo.png",
   },

@@ -5,18 +5,18 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 export function LeaderboardToggle({
-  bettors,
+  supporters,
   players,
 }: {
-  bettors: React.ReactNode
+  supporters: React.ReactNode
   players: React.ReactNode
 }) {
-  const [tab, setTab] = useState<"bettors" | "players">("players")
+  const [tab, setTab] = useState<"supporters" | "players">("players")
 
   return (
     <div className="flex flex-col gap-4">
       <div className="inline-flex w-fit rounded-full bg-muted p-1">
-        {(["bettors", "players"] as const).map((t) => (
+        {(["supporters", "players"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -30,7 +30,7 @@ export function LeaderboardToggle({
           </button>
         ))}
       </div>
-      {tab === "bettors" ? bettors : players}
+      {tab === "supporters" ? supporters : players}
     </div>
   )
 }

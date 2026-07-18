@@ -13,7 +13,7 @@ export function revalidateTournamentPaths(tournamentId: string) {
   ;[
     base,
     `${base}/bracket`,
-    `${base}/betting`,
+    `${base}/support`,
     `${base}/leaderboard`,
     `${base}/info`,
     `${base}/manage`,

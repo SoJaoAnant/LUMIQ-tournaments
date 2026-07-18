@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils"
 
 export function WalletPointsBadge({
   points,
-  label = "betting points",
+  label = "support points",
   size = "default",
   className,
 }: {

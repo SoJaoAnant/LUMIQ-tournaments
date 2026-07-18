@@ -1,20 +1,20 @@
 import type { Match, MatchStatus } from "@prisma/client"
 import { Trophy } from "lucide-react"
 
-import { MatchNode, type MatchBet } from "@/components/bracket/match-node"
+import { MatchNode, type MatchSupport } from "@/components/bracket/match-node"
 import { EmptyState } from "@/components/shared/empty-state"
 import { cn } from "@/lib/utils"
 
 type PlayerInfo = { name: string; seed: number; eliminated: boolean }
 
 const LEGEND: { dotClassName: string; label: string }[] = [
-  { dotClassName: "bg-destructive", label: "Betting" },
+  { dotClassName: "bg-destructive", label: "Support" },
   { dotClassName: "bg-[#E9A23B]", label: "Live" },
   { dotClassName: "bg-primary/35", label: "Scheduled" },
   { dotClassName: "bg-muted-foreground/40", label: "Concluded" },
 ]
 
-const ACTIVE_CHILD_STATUSES: MatchStatus[] = ["BETTING_OPEN", "LIVE"]
+const ACTIVE_CHILD_STATUSES: MatchStatus[] = ["SUPPORT_OPEN", "LIVE"]
 
 function sortByMatchNumber(matches: Match[]) {
   return [...matches].sort((a, b) => a.matchNumber - b.matchNumber)
@@ -85,19 +85,19 @@ function MatchRow({
 export function BracketView({
   matches,
   players,
-  bettable = false,
-  betsByMatch,
-  canBet = false,
+  supportable = false,
+  supportByMatch,
+  canSupport = false,
   adminMode = false,
   isDeveloper = false,
 }: {
   matches: Match[]
   players: Record<string, PlayerInfo>
-  /** Enables click-to-bet on BETTING_OPEN matches. Leave off for admin/read-only views. */
-  bettable?: boolean
-  betsByMatch?: Record<string, MatchBet>
-  canBet?: boolean
-  /** Enables inline match management (betting, start, winner, override) from the tree. */
+  /** Enables click-to-support on SUPPORT_OPEN matches. Leave off for admin/read-only views. */
+  supportable?: boolean
+  supportByMatch?: Record<string, MatchSupport>
+  canSupport?: boolean
+  /** Enables inline match management (support, start, winner, override) from the tree. */
   adminMode?: boolean
   isDeveloper?: boolean
 }) {
@@ -128,9 +128,9 @@ export function BracketView({
         totalRounds={totalRounds}
         player1={m.player1Id ? players[m.player1Id] : undefined}
         player2={m.player2Id ? players[m.player2Id] : undefined}
-        bettable={bettable}
-        myBet={betsByMatch?.[m.id] ?? null}
-        canBet={canBet}
+        supportable={supportable}
+        mySupport={supportByMatch?.[m.id] ?? null}
+        canSupport={canSupport}
         adminMode={adminMode}
         isDeveloper={isDeveloper}
       />

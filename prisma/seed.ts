@@ -7,18 +7,18 @@ const db = new PrismaClient()
  * real users are created via the Clerk webhook on first login.
  *
  * To bootstrap the very first DEVELOPER account (there's no admin yet to
- * promote anyone), sign in once with your company email, then run:
+ * promote anyone), sign up once, then run:
  *   npx prisma studio
  * and manually set that User row's `role` to DEVELOPER.
  */
 async function main() {
   await db.featureFlag.upsert({
-    where: { key: "betting_enabled" },
+    where: { key: "support_enabled" },
     update: {},
     create: {
-      key: "betting_enabled",
+      key: "support_enabled",
       enabled: true,
-      description: "Master switch for the betting feature across all tournaments.",
+      description: "Master switch for the support feature across all tournaments.",
     },
   })
 

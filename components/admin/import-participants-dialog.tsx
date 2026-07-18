@@ -79,7 +79,7 @@ export function ImportParticipantsDialog({ tournamentId }: { tournamentId: strin
         <DialogHeader>
           <DialogTitle>Import Participants</DialogTitle>
           <DialogDescription>
-            Upload a CSV of company emails, or paste them below (one per line or comma-separated).
+            Upload a CSV of emails, or paste them below (one per line or comma-separated).
             Only emails matching an existing account will be added.
           </DialogDescription>
         </DialogHeader>

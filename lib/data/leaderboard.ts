@@ -2,22 +2,22 @@ import { cache } from "react"
 
 import { db } from "@/lib/db"
 
-export const getBettingLeaderboard = cache(async (tournamentId: string) => {
+export const getSupportLeaderboard = cache(async (tournamentId: string) => {
   const wallets = await db.tournamentWallet.findMany({
     where: { tournamentId },
     include: { user: { select: { name: true } } },
   })
 
-  const bets = await db.bet.findMany({
+  const support = await db.support.findMany({
     where: { match: { tournamentId }, won: { not: null } },
   })
 
   const statsByUser = new Map<string, { correct: number; incorrect: number }>()
-  for (const bet of bets) {
-    const stats = statsByUser.get(bet.userId) ?? { correct: 0, incorrect: 0 }
-    if (bet.won) stats.correct += 1
+  for (const s of support) {
+    const stats = statsByUser.get(s.userId) ?? { correct: 0, incorrect: 0 }
+    if (s.won) stats.correct += 1
     else stats.incorrect += 1
-    statsByUser.set(bet.userId, stats)
+    statsByUser.set(s.userId, stats)
   }
 
   return wallets

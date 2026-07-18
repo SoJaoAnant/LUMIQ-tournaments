@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Ticket, TicketSlash } from "lucide-react"
 
-import { closeAllBetting, openAllBetting } from "@/lib/actions/matches"
+import { closeAllSupport, openAllSupport } from "@/lib/actions/matches"
 import { Button } from "@/components/ui/button"
 
-export function BulkBettingControls({
+export function BulkSupportControls({
   tournamentId,
   eligibleCount,
   openCount,
@@ -41,13 +41,13 @@ export function BulkBettingControls({
         loading={isPending}
         onClick={() =>
           run(
-            () => openAllBetting(tournamentId),
-            `Betting opened on ${eligibleCount} match${eligibleCount === 1 ? "" : "es"}`
+            () => openAllSupport(tournamentId),
+            `Support opened on ${eligibleCount} match${eligibleCount === 1 ? "" : "es"}`
           )
         }
       >
         <Ticket className="size-3.5" />
-        Open betting — all eligible ({eligibleCount})
+        Open support — all eligible ({eligibleCount})
       </Button>
       <Button
         variant="outline"
@@ -56,13 +56,13 @@ export function BulkBettingControls({
         loading={isPending}
         onClick={() =>
           run(
-            () => closeAllBetting(tournamentId),
-            `Betting closed on ${openCount} match${openCount === 1 ? "" : "es"}`
+            () => closeAllSupport(tournamentId),
+            `Support closed on ${openCount} match${openCount === 1 ? "" : "es"}`
           )
         }
       >
         <TicketSlash className="size-3.5" />
-        Close betting — all open ({openCount})
+        Close support — all open ({openCount})
       </Button>
     </div>
   )

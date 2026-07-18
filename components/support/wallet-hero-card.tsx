@@ -26,7 +26,7 @@ export function WalletHeroCard({
           isNegative ? "text-destructive/80" : "text-amber-700/80 dark:text-amber-400/70"
         )}
       >
-        Betting wallet
+        Support wallet
       </p>
       <div className="mt-2 flex items-end gap-2">
         <div
@@ -60,7 +60,7 @@ export function WalletHeroCard({
       </div>
       {isNegative && (
         <p className="mt-1.5 text-xs font-medium text-destructive">
-          In the red — win a bet to climb back out.
+          In the red — back a winner to climb back out.
         </p>
       )}
       <div

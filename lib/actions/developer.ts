@@ -42,7 +42,7 @@ export async function resetTournament(tournamentId: string) {
         winnerParticipantId: null,
         runnerUpParticipantId: null,
         thirdPlaceParticipantId: null,
-        bestBettorId: null,
+        bestSupporterId: null,
       },
     }),
   ])

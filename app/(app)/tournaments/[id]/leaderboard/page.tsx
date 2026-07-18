@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { getMyParticipation, getTournament } from "@/lib/data/tournaments"
-import { getBettingLeaderboard } from "@/lib/data/leaderboard"
+import { getSupportLeaderboard } from "@/lib/data/leaderboard"
 import { getRoundLabel } from "@/lib/bracket"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { RankBadge } from "@/components/shared/rank-badge"
@@ -23,13 +23,13 @@ export default async function TournamentLeaderboardPage({
   const tournament = await getTournament(id)
   if (!tournament) notFound()
 
-  const [participation, participants, bettingLeaderboard] = await Promise.all([
+  const [participation, participants, supportLeaderboard] = await Promise.all([
     getMyParticipation(id, user.id),
     db.participant.findMany({
-      where: { tournamentId: id },
+      where: { tournamentId: id, isPlayer: true },
       include: { user: { select: { name: true } } },
     }),
-    getBettingLeaderboard(id),
+    getSupportLeaderboard(id),
   ])
 
   const totalRounds = participants.length ? Math.ceil(Math.log2(participants.length)) : 0
@@ -53,17 +53,17 @@ export default async function TournamentLeaderboardPage({
     return p.eliminated ? `Out · ${roundLabel}` : `Active · ${roundLabel}`
   }
 
-  const bettors =
-    bettingLeaderboard.length === 0 ? (
-      <EmptyState icon={Trophy} title="No betting activity yet" />
+  const supporters =
+    supportLeaderboard.length === 0 ? (
+      <EmptyState icon={Trophy} title="No support activity yet" />
     ) : (
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="grid grid-cols-[2.5rem_1fr_auto_auto] gap-x-3 gap-y-1 px-4 py-3 text-xs font-semibold text-muted-foreground sm:grid-cols-[2.5rem_1fr_5rem_5rem]">
           <span>Rank</span>
-          <span>Bettor</span>
+          <span>Supporter</span>
           <span className="text-right">Points</span>
           <span className="text-right">Acc.</span>
-          {bettingLeaderboard.map((row, i) => (
+          {supportLeaderboard.map((row, i) => (
             <div key={row.userId} className="contents">
               <div
                 className={cn(
@@ -99,7 +99,7 @@ export default async function TournamentLeaderboardPage({
 
   const players =
     rankedPlayers.length === 0 ? (
-      <EmptyState icon={Medal} title="No participants yet" />
+      <EmptyState icon={Medal} title="No players yet" />
     ) : (
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <ul className="divide-y divide-border">
@@ -136,5 +136,5 @@ export default async function TournamentLeaderboardPage({
       </div>
     )
 
-  return <LeaderboardToggle bettors={bettors} players={players} />
+  return <LeaderboardToggle supporters={supporters} players={players} />
 }

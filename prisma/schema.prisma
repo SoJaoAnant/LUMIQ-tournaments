@@ -26,7 +26,7 @@ enum TournamentStatus {
 
 enum MatchStatus {
   SCHEDULED
-  BETTING_OPEN
+  SUPPORT_OPEN
   LIVE
   FINISHED
 }
@@ -43,11 +43,11 @@ model User {
 
   tournamentsCreated Tournament[]       @relation("TournamentCreator")
   participants       Participant[]
-  bets               Bet[]
+  support            Support[]
   wallets            TournamentWallet[]
   announcements      Announcement[]
   auditLogs          AuditLog[]
-  bestBettorFor      Tournament[]       @relation("BestBettor")
+  bestSupporterFor   Tournament[]       @relation("BestSupporter")
 
   @@index([role])
 }
@@ -59,8 +59,8 @@ model Tournament {
   status            TournamentStatus @default(DRAFT)
   registrationOpen  DateTime
   registrationClose DateTime
-  bettingOpen       DateTime?
-  bettingClose      DateTime?
+  supportOpen       DateTime?
+  supportClose      DateTime?
 
   createdById String
   createdBy   User   @relation("TournamentCreator", fields: [createdById], references: [id])
@@ -69,8 +69,8 @@ model Tournament {
   winnerParticipantId     String?
   runnerUpParticipantId   String?
   thirdPlaceParticipantId String?
-  bestBettorId            String?
-  bestBettor              User?    @relation("BestBettor", fields: [bestBettorId], references: [id])
+  bestSupporterId         String?
+  bestSupporter           User?    @relation("BestSupporter", fields: [bestSupporterId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -90,6 +90,8 @@ model Participant {
   seed         Int
   eliminated   Boolean @default(false)
   currentRound Int     @default(1)
+  /// False for support-only joins — excluded from bracket generation, but still gets a wallet.
+  isPlayer     Boolean @default(true)
 
   user       User       @relation(fields: [userId], references: [id])
   tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
@@ -119,13 +121,13 @@ model Match {
   loserToSlot    Int?
 
   tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
-  bets       Bet[]
+  support    Support[]
 
   @@unique([tournamentId, round, matchNumber])
   @@index([tournamentId, status])
 }
 
-model Bet {
+model Support {
   id                String   @id @default(cuid())
   userId            String
   matchId           String

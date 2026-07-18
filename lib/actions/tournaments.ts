@@ -92,7 +92,7 @@ export async function closeRegistration(tournamentId: string) {
   revalidatePath("/tournaments")
 }
 
-export async function joinTournament(tournamentId: string) {
+export async function joinTournament(tournamentId: string, isPlayer: boolean) {
   const user = await getCurrentUser()
   if (!user) throw new ForbiddenError("You must be signed in to join a tournament.")
 
@@ -111,7 +111,7 @@ export async function joinTournament(tournamentId: string) {
   if (existing) throw new ForbiddenError("You've already joined this tournament.")
 
   await db.participant.create({
-    data: { userId: user.id, tournamentId, seed: 0 },
+    data: { userId: user.id, tournamentId, seed: 0, isPlayer },
   })
 
   revalidatePath(`/tournaments/${tournamentId}`)

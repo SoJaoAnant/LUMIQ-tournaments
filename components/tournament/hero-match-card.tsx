@@ -2,7 +2,7 @@ import Link from "next/link"
 import type { Match } from "@prisma/client"
 
 import { getRoundLabel } from "@/lib/bracket"
-import { getBetStake } from "@/lib/betting"
+import { getSupportStake } from "@/lib/support"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { cn } from "@/lib/utils"
 
@@ -63,19 +63,19 @@ export function HeroMatchCard({
   const pillLabel =
     match.status === "LIVE"
       ? `${roundLabel} · LIVE`
-      : match.status === "BETTING_OPEN"
-        ? `${roundLabel} · BETTING OPEN`
+      : match.status === "SUPPORT_OPEN"
+        ? `${roundLabel} · SUPPORT OPEN`
         : match.status === "FINISHED"
           ? `${roundLabel} · CONCLUDED`
           : `${roundLabel} · UPCOMING`
 
-  const stake = getBetStake(match.round)
+  const stake = getSupportStake(match.round)
 
   const cta =
-    match.status === "BETTING_OPEN"
+    match.status === "SUPPORT_OPEN"
       ? {
-          href: `/tournaments/${tournamentId}/betting`,
-          label: `Place your bet — win ${stake * 2} points →`,
+          href: `/tournaments/${tournamentId}/support`,
+          label: `Support a player — win ${stake * 2} points →`,
         }
       : match.status === "LIVE"
         ? { href: `/tournaments/${tournamentId}/bracket`, label: "Match is live — follow the bracket →" }
@@ -84,11 +84,11 @@ export function HeroMatchCard({
           : { href: `/tournaments/${tournamentId}/bracket`, label: "View the bracket →" }
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(120deg,#7A7DE8,#898CEC_45%,#E583BA)] p-6 text-white shadow-lg shadow-primary/25 sm:p-7">
+    <div className="relative overflow-hidden rounded-3xl bg-[linear-gradient(120deg,#E17B32,#F0934D_45%,#898CEC)] p-6 text-white shadow-lg shadow-primary/25 sm:p-7">
       <div className="pointer-events-none absolute -top-12 -right-12 size-48 rounded-full bg-white/10 blur-2xl" />
 
       <div className="relative inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-wide uppercase">
-        {(match.status === "LIVE" || match.status === "BETTING_OPEN") && (
+        {(match.status === "LIVE" || match.status === "SUPPORT_OPEN") && (
           <span className="inline-flex size-1.5 rounded-full bg-white" />
         )}
         {pillLabel}

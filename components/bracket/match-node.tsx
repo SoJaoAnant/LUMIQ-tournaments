@@ -6,8 +6,8 @@ import { toast } from "sonner"
 import { Check } from "lucide-react"
 import type { Match, MatchStatus } from "@prisma/client"
 
-import { placeBet } from "@/lib/actions/bets"
-import { getBetStake } from "@/lib/betting"
+import { placeSupport } from "@/lib/actions/support"
+import { getSupportStake } from "@/lib/support"
 import { getRoundLabel } from "@/lib/bracket"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 
 type Player = { name: string; seed: number; eliminated: boolean } | undefined
 
-export type MatchBet = {
+export type MatchSupport = {
   predictedWinnerId: string
   won: boolean | null
   pointsEarned: number
@@ -45,8 +45,8 @@ const STATE_CONFIG: Record<
     pillText: "text-primary",
     dashed: true,
   },
-  BETTING_OPEN: {
-    label: "Betting",
+  SUPPORT_OPEN: {
+    label: "Support",
     dot: "bg-destructive",
     border: "border-destructive/40",
     bg: "bg-destructive/6",
@@ -112,9 +112,9 @@ export function MatchNode({
   totalRounds,
   player1,
   player2,
-  bettable = false,
-  myBet = null,
-  canBet = false,
+  supportable = false,
+  mySupport = null,
+  canSupport = false,
   adminMode = false,
   isDeveloper = false,
 }: {
@@ -122,10 +122,10 @@ export function MatchNode({
   totalRounds: number
   player1: Player
   player2: Player
-  /** Whether this bracket view allows placing bets at all (off for admin views). */
-  bettable?: boolean
-  myBet?: MatchBet | null
-  canBet?: boolean
+  /** Whether this bracket view allows giving support at all (off for admin views). */
+  supportable?: boolean
+  mySupport?: MatchSupport | null
+  canSupport?: boolean
   /** Whether this bracket view lets an admin manage the match inline (off for player views). */
   adminMode?: boolean
   isDeveloper?: boolean
@@ -151,18 +151,18 @@ export function MatchNode({
   const isWinner1 = concluded && winnerId === player1Id
   const isWinner2 = concluded && winnerId === player2Id
 
-  const canOpenBetDialog = bettable && status === "BETTING_OPEN" && bothKnown && !myBet
-  const showResultChip = bettable && !isBye && !canOpenBetDialog
-  const stake = getBetStake(round)
+  const canOpenSupportDialog = supportable && status === "SUPPORT_OPEN" && bothKnown && !mySupport
+  const showResultChip = supportable && !isBye && !canOpenSupportDialog
+  const stake = getSupportStake(round)
 
-  function handleBet(predictedWinnerId: string) {
+  function handleSupport(predictedWinnerId: string) {
     startTransition(async () => {
       try {
-        await placeBet(matchId, predictedWinnerId)
-        toast.success("Bet placed — good luck!")
+        await placeSupport(matchId, predictedWinnerId)
+        toast.success("Support given — good luck!")
         router.refresh()
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Couldn't place bet")
+        toast.error(err instanceof Error ? err.message : "Couldn't give support")
       }
     })
   }
@@ -173,32 +173,32 @@ export function MatchNode({
 
   let resultChip: { label: string; className: string; note: string } | null = null
   if (showResultChip) {
-    if (myBet?.won === true) {
+    if (mySupport?.won === true) {
       resultChip = {
-        label: `Won +${myBet.pointsEarned}`,
+        label: `Won +${mySupport.pointsEarned}`,
         className: "bg-[#3FBF87]/12 text-[#2C9E6E]",
-        note: "Your bet on this match settled.",
+        note: "Your support on this match settled.",
       }
-    } else if (myBet?.won === false) {
+    } else if (mySupport?.won === false) {
       resultChip = {
-        label: `Missed −${myBet.pointsSpent}`,
+        label: `Missed −${mySupport.pointsSpent}`,
         className: "bg-destructive/10 text-destructive",
-        note: "Your bet on this match settled.",
+        note: "Your support on this match settled.",
       }
-    } else if (myBet) {
+    } else if (mySupport) {
       resultChip = {
         label: "Pending",
         className: "bg-primary/10 text-primary",
-        note: "Your bet is locked in — check back once this match concludes.",
+        note: "Your support is locked in — check back once this match concludes.",
       }
     } else {
       resultChip = {
-        label: "No bet",
+        label: "No support",
         className: "bg-muted text-muted-foreground",
         note:
           status === "SCHEDULED"
-            ? "Betting hasn't opened for this match yet."
-            : "You didn't bet on this match.",
+            ? "Support isn't open for this match yet."
+            : "You didn't support a player in this match.",
       }
     }
   }
@@ -264,7 +264,7 @@ export function MatchNode({
             <PlayerRow player={player2} isWinner={isWinner2} isLoser={concluded && !isWinner2} isBye={isBye} />
           </div>
 
-          {canOpenBetDialog && (
+          {canOpenSupportDialog && (
             <div className="flex flex-col gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3.5">
               <p className="text-xs text-muted-foreground">
                 Back a winner — stake {stake} point{stake === 1 ? "" : "s"}, win {stake * 2} back.
@@ -277,16 +277,16 @@ export function MatchNode({
                     key={pid}
                     variant="outline"
                     className="justify-start"
-                    disabled={isPending || !canBet}
+                    disabled={isPending || !canSupport}
                     loading={isPending}
-                    onClick={() => handleBet(pid)}
+                    onClick={() => handleSupport(pid)}
                   >
                     {p.name} <span className="text-xs text-muted-foreground">#{p.seed}</span>
                   </Button>
                 )
               })}
-              {!canBet && (
-                <p className="text-xs text-destructive">You don&apos;t have enough betting points left.</p>
+              {!canSupport && (
+                <p className="text-xs text-destructive">You don&apos;t have enough support points left.</p>
               )}
             </div>
           )}

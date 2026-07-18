@@ -53,7 +53,7 @@ export default async function TournamentOverviewPage({
               This cup has wrapped up
             </p>
             <p className="mt-1 text-sm text-white/80">
-              See who took the trophy and who was the best bettor of this tournament.
+              See who took the trophy and who was the best supporter of this tournament.
             </p>
             <Link
               href={`/tournaments/${id}/results`}

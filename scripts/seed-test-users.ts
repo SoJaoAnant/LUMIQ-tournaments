@@ -3,13 +3,13 @@ import { PrismaClient } from "@prisma/client"
 const db = new PrismaClient()
 
 const TEST_USERS = [
-  { name: "Priya Rao", email: "priya.rao@lumiq.ai" },
-  { name: "Rahul Mehta", email: "rahul.mehta@lumiq.ai" },
-  { name: "Ananya Iyer", email: "ananya.iyer@lumiq.ai" },
-  { name: "Vikram Nair", email: "vikram.nair@lumiq.ai" },
-  { name: "Sneha Kapoor", email: "sneha.kapoor@lumiq.ai" },
-  { name: "Arjun Desai", email: "arjun.desai@lumiq.ai" },
-  { name: "Kavya Menon", email: "kavya.menon@lumiq.ai" },
+  { name: "Priya Rao", email: "priya.rao@gmail.com" },
+  { name: "Rahul Mehta", email: "rahul.mehta@gmail.com" },
+  { name: "Ananya Iyer", email: "ananya.iyer@gmail.com" },
+  { name: "Vikram Nair", email: "vikram.nair@gmail.com" },
+  { name: "Sneha Kapoor", email: "sneha.kapoor@gmail.com" },
+  { name: "Arjun Desai", email: "arjun.desai@gmail.com" },
+  { name: "Kavya Menon", email: "kavya.menon@gmail.com" },
 ]
 
 async function main() {

@@ -13,7 +13,7 @@ export function TournamentHeader({
   participantCount: number
   stage: TournamentStage | null
 }) {
-  const pulsing = stage?.live || stage?.bettingOpen
+  const pulsing = stage?.live || stage?.supportOpen
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -37,7 +37,7 @@ export function TournamentHeader({
           {pulsing && <span className="inline-flex size-2 rounded-full bg-destructive" />}
           <span>
             {stage.roundLabel}
-            {stage.bettingOpen && " · Betting open"}
+            {stage.supportOpen && " · Support open"}
             {stage.live && " · Live"}
             {stage.concluded && " · Concluded"}
           </span>

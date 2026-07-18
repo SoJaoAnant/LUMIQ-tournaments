@@ -4,7 +4,7 @@ import { Users } from "lucide-react"
 import { getTournament } from "@/lib/data/tournaments"
 import { db } from "@/lib/db"
 import { computeRounds } from "@/lib/bracket"
-import { getInitialWalletPoints } from "@/lib/betting"
+import { getInitialWalletPoints } from "@/lib/support"
 import { AvatarTile } from "@/components/shared/avatar-tile"
 import { EmptyState } from "@/components/shared/empty-state"
 import { cn } from "@/lib/utils"
@@ -24,8 +24,10 @@ export default async function TournamentInfoPage({
     include: { user: { select: { name: true, department: true } } },
     orderBy: { seed: "asc" },
   })
+  const players = participants.filter((p) => p.isPlayer)
+  const supporters = participants.filter((p) => !p.isPlayer)
 
-  const rounds = participants.length > 0 ? computeRounds(participants.length) : null
+  const rounds = players.length > 0 ? computeRounds(players.length) : null
   const initialPoints = rounds !== null ? getInitialWalletPoints(rounds) : null
 
   return (
@@ -51,19 +53,19 @@ export default async function TournamentInfoPage({
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h2 className="mb-3 font-heading text-base font-bold">Betting rules</h2>
+          <h2 className="mb-3 font-heading text-base font-bold">Support rules</h2>
           <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <li>• One bet per match — you can&apos;t back both players.</li>
-            <li>• Bets can&apos;t be edited or cancelled once submitted.</li>
-            <li>• Betting automatically locks the moment a match goes live.</li>
-            <li>• Your full betting history stays visible, win or lose.</li>
+            <li>• One show of support per match — you can&apos;t back both players.</li>
+            <li>• Support can&apos;t be edited or cancelled once submitted.</li>
+            <li>• Support automatically locks the moment a match goes live.</li>
+            <li>• Your full support history stays visible, win or lose.</li>
             <li>
-              • You start with enough points to bet every round and lose every time, plus a small
+              • You start with enough points to support every round and lose every time, plus a small
               cushion
               {initialPoints !== null && (
                 <>
                   {" "}
-                  — for this cup&apos;s current {participants.length} players ({rounds} rounds),
+                  — for this cup&apos;s current {players.length} players ({rounds} rounds),
                   that&apos;s <strong className="text-foreground">{initialPoints} points</strong>{" "}
                   (1+2+...+{rounds} plus 5)
                 </>
@@ -75,36 +77,63 @@ export default async function TournamentInfoPage({
         </div>
       </div>
 
-      <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <h2 className="mb-3 flex items-center gap-2 font-heading text-base font-bold">
-          <Users className="size-4 text-primary" />
-          Participants
-        </h2>
-        {participants.length === 0 ? (
-          <EmptyState icon={Users} title="No participants yet" />
-        ) : (
-          <ul className="flex flex-col divide-y divide-border">
-            {participants.map((p) => (
-              <li key={p.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-                <AvatarTile name={p.user.name} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{p.user.name}</p>
-                  {p.user.department && (
-                    <p className="text-xs text-muted-foreground">{p.user.department}</p>
-                  )}
-                </div>
-                <span className="shrink-0 text-xs text-muted-foreground">Seed #{p.seed}</span>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                    p.eliminated ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
-                  )}
-                >
-                  {p.eliminated ? "Eliminated" : "Active"}
-                </span>
-              </li>
-            ))}
-          </ul>
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h2 className="mb-3 flex items-center gap-2 font-heading text-base font-bold">
+            <Users className="size-4 text-primary" />
+            Players <span className="font-normal text-muted-foreground">· {players.length}</span>
+          </h2>
+          {players.length === 0 ? (
+            <EmptyState icon={Users} title="No players yet" />
+          ) : (
+            <ul className="flex flex-col divide-y divide-border">
+              {players.map((p) => (
+                <li key={p.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <AvatarTile name={p.user.name} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{p.user.name}</p>
+                    {p.user.department && (
+                      <p className="text-xs text-muted-foreground">{p.user.department}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 text-xs text-muted-foreground">Seed #{p.seed}</span>
+                  <span
+                    className={cn(
+                      "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      p.eliminated ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
+                    )}
+                  >
+                    {p.eliminated ? "Eliminated" : "Active"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {supporters.length > 0 && (
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <h2 className="mb-3 flex items-center gap-2 font-heading text-base font-bold">
+              <Users className="size-4 text-primary" />
+              Supporters <span className="font-normal text-muted-foreground">· {supporters.length}</span>
+            </h2>
+            <ul className="flex flex-col divide-y divide-border">
+              {supporters.map((p) => (
+                <li key={p.id} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <AvatarTile name={p.user.name} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{p.user.name}</p>
+                    {p.user.department && (
+                      <p className="text-xs text-muted-foreground">{p.user.department}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    Supporter
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </div>

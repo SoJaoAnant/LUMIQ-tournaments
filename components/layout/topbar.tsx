@@ -31,13 +31,13 @@ export function Topbar({ role, name }: { role: Role; name: string }) {
             <SheetHeader className="p-0 pb-4">
               <SheetTitle className="flex items-center gap-2 text-left">
                 <Image src="/logo.png" alt="" width={32} height={32} className="rounded-lg" />
-                LUMIQ Tournaments
+                LUMIQ League
               </SheetTitle>
             </SheetHeader>
             <NavLinks role={role} onNavigate={() => setOpen(false)} />
           </SheetContent>
         </Sheet>
-        <span className="text-sm font-semibold">LUMIQ Tournaments</span>
+        <span className="text-sm font-semibold">LUMIQ League</span>
       </div>
 
       <div className="flex items-center gap-3">

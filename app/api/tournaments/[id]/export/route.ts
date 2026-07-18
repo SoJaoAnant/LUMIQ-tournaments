@@ -19,7 +19,7 @@ export async function GET(
   if (!tournament) return new NextResponse("Not found", { status: 404 })
 
   const participants = await db.participant.findMany({
-    where: { tournamentId: id },
+    where: { tournamentId: id, isPlayer: true },
     include: { user: { select: { name: true, email: true, department: true } } },
     orderBy: { seed: "asc" },
   })

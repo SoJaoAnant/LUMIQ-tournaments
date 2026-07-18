@@ -1,14 +1,14 @@
 import type { Prisma } from "@prisma/client"
 
 import { db } from "@/lib/db"
-import { resolveBetsForMatch } from "@/lib/betting"
+import { resolveSupportForMatch } from "@/lib/support"
 import { checkAndCompleteTournament } from "@/lib/results"
 
 /**
  * Core match-finishing logic shared by declareWinner, disqualification
  * forfeits, and the developer match-override tool: marks the match finished,
  * eliminates the loser, advances the winner (and, for semifinals, the loser)
- * through the bracket wiring, resolves bets, and checks for tournament
+ * through the bracket wiring, resolves support, and checks for tournament
  * completion. Runs inside a single transaction so a partial advance can
  * never happen.
  */
@@ -54,7 +54,7 @@ export async function resolveMatchWinner(matchId: string, winnerId: string) {
       )
     }
 
-    await resolveBetsForMatch(tx, matchId, match.tournamentId, winnerId)
+    await resolveSupportForMatch(tx, matchId, match.tournamentId, winnerId)
     await checkAndCompleteTournament(tx, match.tournamentId)
   })
 }
@@ -62,9 +62,10 @@ export async function resolveMatchWinner(matchId: string, winnerId: string) {
 /**
  * Developer-only correction tool: rewrites the winner of an already-finished
  * match. Only allowed while whatever it feeds into (next match / bronze
- * match) hasn't itself progressed past SCHEDULED — otherwise downstream bets
- * and results could reference a participant that no longer belongs there,
- * so we refuse and point the developer at a full tournament reset instead.
+ * match) hasn't itself progressed past SCHEDULED — otherwise downstream
+ * support and results could reference a participant that no longer belongs
+ * there, so we refuse and point the developer at a full tournament reset
+ * instead.
  */
 export async function overrideMatchResult(matchId: string, newWinnerId: string) {
   const match = await db.match.findUniqueOrThrow({ where: { id: matchId } })
@@ -102,15 +103,15 @@ export async function overrideMatchResult(matchId: string, newWinnerId: string) 
   const tournament = await db.tournament.findUniqueOrThrow({ where: { id: match.tournamentId } })
 
   await db.$transaction(async (tx) => {
-    const bets = await tx.bet.findMany({ where: { matchId } })
-    for (const bet of bets) {
-      if (bet.pointsEarned > 0) {
+    const support = await tx.support.findMany({ where: { matchId } })
+    for (const s of support) {
+      if (s.pointsEarned > 0) {
         await tx.tournamentWallet.update({
-          where: { userId_tournamentId: { userId: bet.userId, tournamentId: match.tournamentId } },
-          data: { currentPoints: { decrement: bet.pointsEarned } },
+          where: { userId_tournamentId: { userId: s.userId, tournamentId: match.tournamentId } },
+          data: { currentPoints: { decrement: s.pointsEarned } },
         })
       }
-      await tx.bet.update({ where: { id: bet.id }, data: { won: null, pointsEarned: 0 } })
+      await tx.support.update({ where: { id: s.id }, data: { won: null, pointsEarned: 0 } })
     }
 
     if (oldLoserId) {
@@ -142,7 +143,7 @@ export async function overrideMatchResult(matchId: string, newWinnerId: string) 
           winnerParticipantId: null,
           runnerUpParticipantId: null,
           thirdPlaceParticipantId: null,
-          bestBettorId: null,
+          bestSupporterId: null,
         },
       })
     }

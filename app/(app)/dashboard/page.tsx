@@ -20,13 +20,13 @@ export default async function DashboardPage() {
 
   const tournamentIds = participations.map((p) => p.tournamentId)
 
-  const [openBets, announcements] = await Promise.all([
+  const [openSupportWindows, announcements] = await Promise.all([
     tournamentIds.length
       ? db.match.findMany({
           where: {
             tournamentId: { in: tournamentIds },
-            status: "BETTING_OPEN",
-            bets: { none: { userId: user.id } },
+            status: "SUPPORT_OPEN",
+            support: { none: { userId: user.id } },
           },
           include: { tournament: true },
           take: 5,
@@ -106,18 +106,18 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Swords className="size-4 text-primary" />
-              Open Betting Windows
+              Open Support Windows
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {openBets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No open bets right now.</p>
+            {openSupportWindows.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No open support windows right now.</p>
             ) : (
               <ul className="flex flex-col gap-2">
-                {openBets.map((m) => (
+                {openSupportWindows.map((m) => (
                   <li key={m.id}>
                     <Link
-                      href={`/tournaments/${m.tournamentId}/betting`}
+                      href={`/tournaments/${m.tournamentId}/support`}
                       className="block rounded-xl border border-border p-3 text-sm transition-colors hover:bg-muted"
                     >
                       <p className="font-medium">{m.tournament.title}</p>

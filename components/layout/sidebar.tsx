@@ -9,7 +9,7 @@ export function Sidebar({ role }: { role: Role }) {
       <div className="mb-6 flex items-center gap-2 px-2">
         <Image src="/logo.png" alt="" width={32} height={32} className="rounded-lg" />
         <span className="font-heading text-lg font-semibold tracking-tight">
-          LUMIQ Tournaments
+          LUMIQ League
         </span>
       </div>
       <NavLinks role={role} />

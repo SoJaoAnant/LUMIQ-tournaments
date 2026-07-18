@@ -1,7 +1,7 @@
 import { getRoundLabel } from "@/lib/bracket"
 import { cn } from "@/lib/utils"
 
-export type BetHistoryRow = {
+export type SupportHistoryRow = {
   id: string
   matchRound: number
   matchNumber: number
@@ -11,14 +11,20 @@ export type BetHistoryRow = {
   pointsSpent: number
 }
 
-export function BetHistoryList({ bets, totalRounds }: { bets: BetHistoryRow[]; totalRounds: number }) {
-  if (bets.length === 0) {
-    return <p className="text-sm text-muted-foreground">No bets placed yet in this tournament.</p>
+export function SupportHistoryList({
+  support,
+  totalRounds,
+}: {
+  support: SupportHistoryRow[]
+  totalRounds: number
+}) {
+  if (support.length === 0) {
+    return <p className="text-sm text-muted-foreground">No support given yet in this tournament.</p>
   }
 
   return (
     <ul className="flex flex-col divide-y divide-border">
-      {bets.map((b) => (
+      {support.map((b) => (
         <li key={b.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
           <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground">

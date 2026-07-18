@@ -3,10 +3,10 @@ import { Trophy } from "lucide-react"
 
 import { getTournament } from "@/lib/data/tournaments"
 import { db } from "@/lib/db"
-import { getBettingLeaderboard } from "@/lib/data/leaderboard"
+import { getSupportLeaderboard } from "@/lib/data/leaderboard"
 import { EmptyState } from "@/components/shared/empty-state"
 import { WinnersPodium } from "@/components/results/winners-podium"
-import { BestBettorCard } from "@/components/results/best-bettor-card"
+import { BestSupporterCard } from "@/components/results/best-supporter-card"
 
 export default async function TournamentResultsPage({
   params,
@@ -41,11 +41,11 @@ export default async function TournamentResultsPage({
           include: { user: { select: { name: true } } },
         })
       : Promise.resolve([]),
-    getBettingLeaderboard(id),
+    getSupportLeaderboard(id),
   ])
 
   const nameById = new Map(participants.map((p) => [p.id, p.user.name]))
-  const bestBettor = leaderboard.find((row) => row.userId === tournament.bestBettorId)
+  const bestSupporter = leaderboard.find((row) => row.userId === tournament.bestSupporterId)
 
   return (
     <div className="flex flex-col items-center gap-8">
@@ -62,10 +62,10 @@ export default async function TournamentResultsPage({
       />
 
       <div className="w-full max-w-xl">
-        <BestBettorCard
-          name={bestBettor?.name ?? null}
-          points={bestBettor?.points ?? null}
-          accuracy={bestBettor?.accuracy ?? null}
+        <BestSupporterCard
+          name={bestSupporter?.name ?? null}
+          points={bestSupporter?.points ?? null}
+          accuracy={bestSupporter?.accuracy ?? null}
         />
       </div>
     </div>

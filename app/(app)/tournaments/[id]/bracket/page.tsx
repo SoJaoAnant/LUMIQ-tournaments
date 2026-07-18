@@ -10,7 +10,7 @@ import { hasAtLeastRole } from "@/lib/rbac"
 import { BracketView } from "@/components/bracket/bracket-view"
 import { GenerateBracketButton } from "@/components/admin/generate-bracket-button"
 import { BracketSwapPanel } from "@/components/admin/bracket-swap-panel"
-import { BulkBettingControls } from "@/components/admin/bulk-betting-controls"
+import { BulkSupportControls } from "@/components/admin/bulk-support-controls"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default async function TournamentBracketPage({
@@ -26,19 +26,19 @@ export default async function TournamentBracketPage({
 
   const isAdmin = hasAtLeastRole(user.role, "ADMIN")
 
-  const [{ matches, players }, wallet, myBets, participantCount] = await Promise.all([
+  const [{ matches, players }, wallet, mySupport, participantCount] = await Promise.all([
     getBracketData(id),
     db.tournamentWallet.findUnique({
       where: { userId_tournamentId: { userId: user.id, tournamentId: id } },
     }),
-    db.bet.findMany({ where: { userId: user.id, match: { tournamentId: id } } }),
-    isAdmin ? db.participant.count({ where: { tournamentId: id } }) : Promise.resolve(0),
+    db.support.findMany({ where: { userId: user.id, match: { tournamentId: id } } }),
+    isAdmin ? db.participant.count({ where: { tournamentId: id, isPlayer: true } }) : Promise.resolve(0),
   ])
 
-  const betsByMatch = Object.fromEntries(
-    myBets.map((b) => [
-      b.matchId,
-      { predictedWinnerId: b.predictedWinnerId, won: b.won, pointsEarned: b.pointsEarned, pointsSpent: b.pointsSpent },
+  const supportByMatch = Object.fromEntries(
+    mySupport.map((s) => [
+      s.matchId,
+      { predictedWinnerId: s.predictedWinnerId, won: s.won, pointsEarned: s.pointsEarned, pointsSpent: s.pointsSpent },
     ])
   )
 
@@ -66,14 +66,14 @@ export default async function TournamentBracketPage({
 
       {isAdmin && matches.length > 0 && (
         <>
-          <BulkBettingControls
+          <BulkSupportControls
             tournamentId={id}
             eligibleCount={
               matches.filter(
                 (m) => m.status === "SCHEDULED" && !m.isBye && m.player1Id && m.player2Id
               ).length
             }
-            openCount={matches.filter((m) => m.status === "BETTING_OPEN").length}
+            openCount={matches.filter((m) => m.status === "SUPPORT_OPEN").length}
           />
           <BracketSwapPanel
             matches={matches}
@@ -94,7 +94,7 @@ export default async function TournamentBracketPage({
               Results are ready — the winner has been declared
             </p>
             <p className="text-xs text-muted-foreground">
-              See the final standings and the best bettor of the tournament →
+              See the final standings and the best supporter of the tournament →
             </p>
           </div>
         </Link>
@@ -103,9 +103,9 @@ export default async function TournamentBracketPage({
       <BracketView
         matches={matches}
         players={players}
-        bettable
-        betsByMatch={betsByMatch}
-        canBet={(wallet?.currentPoints ?? 0) >= 1}
+        supportable
+        supportByMatch={supportByMatch}
+        canSupport={(wallet?.currentPoints ?? 0) >= 1}
         adminMode={isAdmin}
         isDeveloper={user.role === "DEVELOPER"}
       />
