@@ -17,8 +17,8 @@ export default async function TournamentLeaderboardPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const user = await requireUser()
   const { id } = await params
+  const user = await requireUser(`/tournaments/${id}`)
 
   const tournament = await getTournament(id)
   if (!tournament) notFound()

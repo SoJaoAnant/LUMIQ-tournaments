@@ -47,10 +47,17 @@ export async function getCurrentUser(): Promise<User | null> {
  * For Server Components/pages: redirects unauthenticated visitors to sign-in,
  * and Clerk-authenticated-but-unrecognized visitors to /unauthorized instead
  * of bouncing them back into a sign-in loop.
+ *
+ * `redirectTo`, when given, is threaded through as `?redirect_url=` so Clerk's
+ * hosted sign-in/sign-up sends the visitor back to that page (e.g. a shared
+ * tournament link) once they've authenticated, instead of the default
+ * dashboard fallback.
  */
-export async function requireUser(): Promise<User> {
+export async function requireUser(redirectTo?: string): Promise<User> {
   const { userId } = await auth()
-  if (!userId) redirect("/sign-in")
+  if (!userId) {
+    redirect(redirectTo ? `/sign-in?redirect_url=${encodeURIComponent(redirectTo)}` : "/sign-in")
+  }
 
   const user = await getCurrentUser()
   if (!user) redirect("/unauthorized")
@@ -58,8 +65,8 @@ export async function requireUser(): Promise<User> {
 }
 
 /** For Server Components/pages: redirects to /unauthorized if role is insufficient. */
-export async function requireRole(minRole: Role): Promise<User> {
-  const user = await requireUser()
+export async function requireRole(minRole: Role, redirectTo?: string): Promise<User> {
+  const user = await requireUser(redirectTo)
   if (!hasAtLeastRole(user.role, minRole)) redirect("/unauthorized")
   return user
 }

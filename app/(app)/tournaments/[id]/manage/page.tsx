@@ -23,8 +23,8 @@ export default async function TournamentManagePage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  const admin = await requireRole("ADMIN")
   const { id } = await params
+  const admin = await requireRole("ADMIN", `/tournaments/${id}`)
 
   const tournament = await db.tournament.findUnique({ where: { id } })
   if (!tournament) notFound()

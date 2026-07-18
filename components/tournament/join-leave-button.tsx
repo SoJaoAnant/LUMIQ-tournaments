@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import type { Tournament } from "@prisma/client"
-import { Layers, Sparkles, Swords } from "lucide-react"
+import { Sparkles, Swords } from "lucide-react"
 
 import { joinTournament, leaveTournament } from "@/lib/actions/tournaments"
 import { Button } from "@/components/ui/button"
@@ -77,8 +77,7 @@ export function JoinLeaveButton({
         <DialogHeader>
           <DialogTitle>How do you want to join?</DialogTitle>
           <DialogDescription>
-            Everyone who joins gets support points to back players in matches — playing just also
-            puts you in the bracket.
+            Everyone who joins gets support points to back players in matches.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
@@ -91,10 +90,10 @@ export function JoinLeaveButton({
           >
             <span className="flex items-center gap-2 font-semibold">
               <Swords className="size-4 text-primary" />
-              Play
+              Join as Player
             </span>
             <span className="text-xs font-normal text-muted-foreground">
-              Compete in the bracket — you&apos;ll also get support points automatically.
+              Added into the bracket to compete, and you can also support other players.
             </span>
           </Button>
           <Button
@@ -106,25 +105,10 @@ export function JoinLeaveButton({
           >
             <span className="flex items-center gap-2 font-semibold">
               <Sparkles className="size-4 text-primary" />
-              Support only
+              Join as Supporter
             </span>
             <span className="text-xs font-normal text-muted-foreground">
               Not competing — just get support points to back other players.
-            </span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto flex-col items-start gap-1 p-4 text-left whitespace-normal"
-            disabled={isPending}
-            loading={isPending}
-            onClick={() => handleJoin(true)}
-          >
-            <span className="flex items-center gap-2 font-semibold">
-              <Layers className="size-4 text-primary" />
-              Both
-            </span>
-            <span className="text-xs font-normal text-muted-foreground">
-              Compete in the bracket and back other players too.
             </span>
           </Button>
         </div>

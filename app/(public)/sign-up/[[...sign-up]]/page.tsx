@@ -1,9 +1,19 @@
 import { SignUp } from "@clerk/nextjs"
 
-export default function SignUpPage() {
+import { safeRedirectPath } from "@/lib/utils"
+
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect_url?: string }>
+}) {
+  const { redirect_url } = await searchParams
+  const redirectTo = safeRedirectPath(redirect_url)
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <SignUp
+        {...(redirectTo ? { fallbackRedirectUrl: redirectTo } : {})}
         appearance={{
           elements: {
             card: "rounded-2xl shadow-sm",
