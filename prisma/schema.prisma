@@ -92,6 +92,8 @@ model Participant {
   currentRound Int     @default(1)
   /// False for support-only joins — excluded from bracket generation, but still gets a wallet.
   isPlayer     Boolean @default(true)
+  /// Short self-pitch shown under a player's name in the bracket — required for players, unused by supporters.
+  pitch        String?
 
   user       User       @relation(fields: [userId], references: [id])
   tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)

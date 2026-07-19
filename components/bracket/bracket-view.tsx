@@ -5,7 +5,7 @@ import { MatchNode, type MatchSupport } from "@/components/bracket/match-node"
 import { EmptyState } from "@/components/shared/empty-state"
 import { cn } from "@/lib/utils"
 
-type PlayerInfo = { name: string; seed: number; eliminated: boolean }
+type PlayerInfo = { name: string; seed: number; eliminated: boolean; pitch: string | null }
 
 const LEGEND: { dotClassName: string; label: string }[] = [
   { dotClassName: "bg-destructive", label: "Support" },

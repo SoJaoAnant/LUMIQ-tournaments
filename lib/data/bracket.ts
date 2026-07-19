@@ -23,9 +23,9 @@ export const getBracketData = cache(async (tournamentId: string) => {
       })
     : []
 
-  const players: Record<string, { name: string; seed: number; eliminated: boolean }> = {}
+  const players: Record<string, { name: string; seed: number; eliminated: boolean; pitch: string | null }> = {}
   participants.forEach((p) => {
-    players[p.id] = { name: p.user.name, seed: p.seed, eliminated: p.eliminated }
+    players[p.id] = { name: p.user.name, seed: p.seed, eliminated: p.eliminated, pitch: p.pitch }
   })
 
   return { matches, players }

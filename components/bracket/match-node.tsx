@@ -15,7 +15,7 @@ import { AvatarTile } from "@/components/shared/avatar-tile"
 import { MatchAdminControls } from "@/components/admin/match-admin-controls"
 import { cn } from "@/lib/utils"
 
-type Player = { name: string; seed: number; eliminated: boolean } | undefined
+type Player = { name: string; seed: number; eliminated: boolean; pitch: string | null } | undefined
 
 export type MatchSupport = {
   predictedWinnerId: string
@@ -99,9 +99,12 @@ function PlayerRow({
       )}
     >
       <AvatarTile name={player ? player.name : "—"} size="sm" className="text-xs" />
-      <span className="min-w-0 flex-1 truncate">
-        {player ? player.name : isBye ? "— Bye —" : "To be decided"}
-      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate">{player ? player.name : isBye ? "— Bye —" : "To be decided"}</p>
+        {player?.pitch && (
+          <p className="truncate text-xs font-normal text-muted-foreground">{player.pitch}</p>
+        )}
+      </div>
       {isWinner && <Check className="size-4 shrink-0 text-primary" />}
     </div>
   )

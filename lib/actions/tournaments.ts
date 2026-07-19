@@ -6,6 +6,7 @@ import { requireRoleForAction, ForbiddenError, getCurrentUser } from "@/lib/auth
 import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { tournamentFormSchema, type TournamentFormInput } from "@/lib/validations/tournament"
+import { pitchSchema } from "@/lib/validations/participant"
 
 export async function createTournament(values: TournamentFormInput) {
   const admin = await requireRoleForAction("ADMIN")
@@ -92,7 +93,7 @@ export async function closeRegistration(tournamentId: string) {
   revalidatePath("/tournaments")
 }
 
-export async function joinTournament(tournamentId: string, isPlayer: boolean) {
+export async function joinTournament(tournamentId: string, isPlayer: boolean, pitch?: string) {
   const user = await getCurrentUser()
   if (!user) throw new ForbiddenError("You must be signed in to join a tournament.")
 
@@ -110,8 +111,11 @@ export async function joinTournament(tournamentId: string, isPlayer: boolean) {
   })
   if (existing) throw new ForbiddenError("You've already joined this tournament.")
 
+  // Supporters aren't shown in the bracket, so a pitch to "get more support" doesn't apply to them.
+  const cleanPitch = isPlayer ? pitchSchema.parse(pitch) : null
+
   await db.participant.create({
-    data: { userId: user.id, tournamentId, seed: 0, isPlayer },
+    data: { userId: user.id, tournamentId, seed: 0, isPlayer, pitch: cleanPitch },
   })
 
   revalidatePath(`/tournaments/${tournamentId}`)
