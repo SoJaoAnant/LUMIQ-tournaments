@@ -5,6 +5,7 @@ import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { resolveMatchWinner } from "@/lib/match-resolution"
 import { revalidateTournamentPaths as revalidateTournament } from "@/lib/revalidate"
+import { notifySupportOpen, notifyMatchStarted } from "@/lib/notify"
 
 export async function openSupport(matchId: string) {
   const admin = await requireRoleForAction("ADMIN")
@@ -19,6 +20,7 @@ export async function openSupport(matchId: string) {
 
   await db.match.update({ where: { id: matchId }, data: { status: "SUPPORT_OPEN" } })
   await logAudit(admin.id, "match.support.open", { matchId })
+  await notifySupportOpen(match.tournamentId, match.player1Id, match.player2Id)
   revalidateTournament(match.tournamentId)
 }
 
@@ -51,6 +53,7 @@ export async function startMatch(matchId: string) {
     db.tournament.update({ where: { id: match.tournamentId }, data: { status: "IN_PROGRESS" } }),
   ])
   await logAudit(admin.id, "match.start", { matchId })
+  await notifyMatchStarted(match.tournamentId, match.player1Id, match.player2Id)
   revalidateTournament(match.tournamentId)
 }
 
@@ -95,6 +98,7 @@ export async function openAllSupport(tournamentId: string) {
   })
 
   await logAudit(admin.id, "match.support.openAll", { tournamentId, count: eligible.length })
+  await Promise.all(eligible.map((m) => notifySupportOpen(tournamentId, m.player1Id, m.player2Id)))
   revalidateTournament(tournamentId)
   return eligible.length
 }

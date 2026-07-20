@@ -31,6 +31,15 @@ enum MatchStatus {
   FINISHED
 }
 
+enum NotificationType {
+  ANNOUNCEMENT
+  SUPPORT_OPEN
+  MATCH_STARTED
+  MATCH_FINISHED
+  TOURNAMENT_FINISHED
+  REGISTRATION_OPEN
+}
+
 model User {
   id         String   @id @default(cuid())
   clerkId    String   @unique
@@ -48,6 +57,7 @@ model User {
   announcements      Announcement[]
   auditLogs          AuditLog[]
   bestSupporterFor   Tournament[]       @relation("BestSupporter")
+  notifications      Notification[]
 
   @@index([role])
 }
@@ -79,6 +89,7 @@ model Tournament {
   matches       Match[]
   wallets       TournamentWallet[]
   announcements Announcement[]
+  notifications Notification[]
 
   @@index([status])
 }
@@ -170,6 +181,24 @@ model Announcement {
   createdBy  User       @relation(fields: [createdById], references: [id])
 
   @@index([tournamentId])
+}
+
+model Notification {
+  id           String           @id @default(cuid())
+  userId       String
+  tournamentId String?
+  type         NotificationType
+  title        String
+  body         String
+  link         String?
+  read         Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tournament Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, read])
 }
 
 model AuditLog {

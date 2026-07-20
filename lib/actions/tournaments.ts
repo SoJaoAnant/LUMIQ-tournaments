@@ -7,6 +7,7 @@ import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { tournamentFormSchema, type TournamentFormInput } from "@/lib/validations/tournament"
 import { pitchSchema } from "@/lib/validations/participant"
+import { notifyRegistrationOpen } from "@/lib/notify"
 
 export async function createTournament(values: TournamentFormInput) {
   const admin = await requireRoleForAction("ADMIN")
@@ -70,6 +71,7 @@ export async function openRegistration(tournamentId: string) {
 
   await db.tournament.update({ where: { id: tournamentId }, data: { status: "REGISTRATION_OPEN" } })
   await logAudit(admin.id, "tournament.registration.open", { tournamentId })
+  await notifyRegistrationOpen(tournamentId)
   revalidatePath(`/tournaments/${tournamentId}`)
   revalidatePath(`/tournaments/${tournamentId}/manage`)
   revalidatePath("/tournaments")

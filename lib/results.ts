@@ -8,16 +8,16 @@ import type { Prisma } from "@prisma/client"
 export async function checkAndCompleteTournament(
   tx: Prisma.TransactionClient,
   tournamentId: string
-) {
+): Promise<boolean> {
   const matches = await tx.match.findMany({ where: { tournamentId } })
-  if (matches.length === 0) return
+  if (matches.length === 0) return false
 
   const rounds = Math.max(...matches.map((m) => m.round))
   const final = matches.find((m) => m.round === rounds && !m.isThirdPlaceMatch)
   const bronze = matches.find((m) => m.isThirdPlaceMatch)
 
-  if (!final || final.status !== "FINISHED") return
-  if (bronze && bronze.status !== "FINISHED") return
+  if (!final || final.status !== "FINISHED") return false
+  if (bronze && bronze.status !== "FINISHED") return false
 
   const runnerUpId =
     final.winnerId === final.player1Id ? final.player2Id : final.player1Id
@@ -34,6 +34,7 @@ export async function checkAndCompleteTournament(
       bestSupporterId,
     },
   })
+  return true
 }
 
 async function computeBestSupporter(tx: Prisma.TransactionClient, tournamentId: string) {

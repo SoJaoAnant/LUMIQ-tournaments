@@ -5,6 +5,7 @@ import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
 import { announcementFormSchema, type AnnouncementFormValues } from "@/lib/validations/announcement"
 import { revalidateTournamentPaths } from "@/lib/revalidate"
+import { notifyAnnouncement } from "@/lib/notify"
 
 export async function publishAnnouncement(tournamentId: string, values: AnnouncementFormValues) {
   const admin = await requireRoleForAction("ADMIN")
@@ -20,6 +21,7 @@ export async function publishAnnouncement(tournamentId: string, values: Announce
   })
 
   await logAudit(admin.id, "announcement.publish", { tournamentId, announcementId: announcement.id })
+  await notifyAnnouncement(tournamentId, announcement.title)
   revalidateTournamentPaths(tournamentId)
   return announcement
 }

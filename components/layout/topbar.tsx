@@ -3,11 +3,12 @@
 import { useState } from "react"
 import Image from "next/image"
 import { UserButton } from "@clerk/nextjs"
-import type { Role } from "@prisma/client"
+import type { Notification, Role } from "@prisma/client"
 import { Menu } from "lucide-react"
 
 import { NavLinks } from "@/components/layout/nav-links"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
+import { NotificationBell } from "@/components/layout/notification-bell"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -17,7 +18,17 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-export function Topbar({ role, name }: { role: Role; name: string }) {
+export function Topbar({
+  role,
+  name,
+  notifications,
+  unreadCount,
+}: {
+  role: Role
+  name: string
+  notifications: Notification[]
+  unreadCount: number
+}) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -42,6 +53,7 @@ export function Topbar({ role, name }: { role: Role; name: string }) {
 
       <div className="flex items-center gap-3">
         <span className="hidden text-sm text-muted-foreground sm:inline">{name}</span>
+        <NotificationBell initialNotifications={notifications} initialUnreadCount={unreadCount} />
         <ThemeToggle />
         <UserButton />
       </div>

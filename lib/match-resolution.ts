@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { resolveSupportForMatch } from "@/lib/support"
 import { checkAndCompleteTournament } from "@/lib/results"
+import { notifyMatchFinished, notifyTournamentFinished } from "@/lib/notify"
 
 /**
  * Core match-finishing logic shared by declareWinner, disqualification
@@ -20,7 +21,7 @@ export async function resolveMatchWinner(matchId: string, winnerId: string) {
   }
   const loserId = winnerId === match.player1Id ? match.player2Id : match.player1Id
 
-  await db.$transaction(async (tx) => {
+  const completed = await db.$transaction(async (tx) => {
     await tx.match.update({ where: { id: matchId }, data: { status: "FINISHED", winnerId } })
 
     if (loserId) {
@@ -55,8 +56,11 @@ export async function resolveMatchWinner(matchId: string, winnerId: string) {
     }
 
     await resolveSupportForMatch(tx, matchId, match.tournamentId, winnerId)
-    await checkAndCompleteTournament(tx, match.tournamentId)
+    return checkAndCompleteTournament(tx, match.tournamentId)
   })
+
+  await notifyMatchFinished(match.tournamentId, match.player1Id, match.player2Id, winnerId)
+  if (completed) await notifyTournamentFinished(match.tournamentId)
 }
 
 /**
