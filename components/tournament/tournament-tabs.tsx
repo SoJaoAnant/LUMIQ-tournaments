@@ -24,7 +24,7 @@ export function TournamentTabs({
     { label: "Bracket", href: `${base}/bracket` },
     { label: "Support", href: `${base}/support`, dot: supportOpen },
     { label: "Leaderboard", href: `${base}/leaderboard` },
-    { label: "Info", href: `${base}/info` },
+    // "Info" tab intentionally hidden, not deleted — the /info route/page still exists in case it's needed again.
     ...(canManage ? [{ label: "Manage", href: `${base}/manage`, icon: Wrench }] : []),
   ]
 

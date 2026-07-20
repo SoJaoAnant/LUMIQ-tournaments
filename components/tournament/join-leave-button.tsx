@@ -64,7 +64,7 @@ export function JoinLeaveButton({
   function handlePitchSubmit() {
     const trimmed = pitch.trim()
     if (!trimmed) {
-      toast.error("Add a short pitch so people know why to back you")
+      toast.error("Add a short description so people know why to back you")
       return
     }
     handleJoin(true, trimmed)
