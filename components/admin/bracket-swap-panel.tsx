@@ -9,6 +9,7 @@ import { Repeat } from "lucide-react"
 import { swapBracketPlayers } from "@/lib/actions/matches"
 import { getRoundLabel } from "@/lib/bracket"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Dialog,
@@ -47,6 +48,7 @@ export function BracketSwapPanel({
   const [aValue, setAValue] = useState("")
   const [bValue, setBValue] = useState("")
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [force, setForce] = useState(false)
 
   const slots = useMemo<Slot[]>(() => {
     const list: Slot[] = []
@@ -84,9 +86,10 @@ export function BracketSwapPanel({
     if (!slotA || !slotB) return
     startTransition(async () => {
       try {
-        await swapBracketPlayers(slotA.matchId, slotA.slot, slotB.matchId, slotB.slot)
+        await swapBracketPlayers(slotA.matchId, slotA.slot, slotB.matchId, slotB.slot, force)
         toast.success(`Swapped ${slotA.playerName} and ${slotB.playerName}`)
         setConfirmOpen(false)
+        setForce(false)
         setAValue("")
         setBValue("")
         router.refresh()
@@ -148,7 +151,13 @@ export function BracketSwapPanel({
         </Button>
       </div>
 
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+      <Dialog
+        open={confirmOpen}
+        onOpenChange={(open) => {
+          setConfirmOpen(open)
+          if (!open) setForce(false)
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Swap these players?</DialogTitle>
@@ -163,6 +172,19 @@ export function BracketSwapPanel({
               )}
             </DialogDescription>
           </DialogHeader>
+          <label className="flex items-start gap-2 rounded-xl border border-dashed border-border p-3 text-xs text-muted-foreground">
+            <Checkbox
+              checked={force}
+              onCheckedChange={(checked) => setForce(checked === true)}
+              disabled={isPending}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="font-semibold text-foreground">Force swap.</span> If either match already
+              has support given on it, refund those points and remove that support so the swap can go
+              through. Leave unchecked to block the swap instead if support exists.
+            </span>
+          </label>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmOpen(false)} disabled={isPending}>
               Cancel

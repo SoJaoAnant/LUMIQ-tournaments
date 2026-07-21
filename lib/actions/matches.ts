@@ -129,14 +129,17 @@ export async function closeAllSupport(tournamentId: string) {
  * match's recorded winner (and the affected participants' currentRound) is kept
  * in sync with whoever ends up in that slot — this applies even to a same-round
  * swap between two players who each arrived via a *different* bye.
- * Restricted to matches that haven't started and have no support yet, so no
- * support ends up pointing at a player who's no longer in that match.
+ * Restricted to matches that haven't started. By default also restricted to
+ * matches with no support given yet, so no support ends up pointing at a player
+ * who's no longer in that match — pass `force: true` to override that and instead
+ * refund (and delete) any existing support on either match before swapping.
  */
 export async function swapBracketPlayers(
   matchAId: string,
   slotA: 1 | 2,
   matchBId: string,
-  slotB: 1 | 2
+  slotB: 1 | 2,
+  force = false
 ) {
   const admin = await requireRoleForAction("ADMIN")
 
@@ -159,11 +162,10 @@ export async function swapBracketPlayers(
     throw new ForbiddenError("Both matches must still be scheduled (not started) to swap players.")
   }
 
-  const [supportA, supportB] = await Promise.all([
-    db.support.count({ where: { matchId: matchAId } }),
-    db.support.count({ where: { matchId: matchBId } }),
-  ])
-  if (supportA > 0 || supportB > 0) {
+  const existingSupport = await db.support.findMany({
+    where: { matchId: { in: [matchAId, matchBId] } },
+  })
+  if (existingSupport.length > 0 && !force) {
     throw new ForbiddenError("Can't swap — support has already been given on one of these matches.")
   }
 
@@ -267,6 +269,22 @@ export async function swapBracketPlayers(
     }
   }
 
+  if (existingSupport.length > 0) {
+    // Refund the stake on every support record tied to either match, then remove
+    // them — once the lineup changes, those predictions no longer mean anything.
+    for (const s of existingSupport) {
+      updates.push(
+        db.tournamentWallet.update({
+          where: { userId_tournamentId: { userId: s.userId, tournamentId: matchA.tournamentId } },
+          data: { currentPoints: { increment: s.pointsSpent } },
+        })
+      )
+    }
+    updates.push(
+      db.support.deleteMany({ where: { id: { in: existingSupport.map((s) => s.id) } } })
+    )
+  }
+
   await db.$transaction(updates)
 
   await logAudit(admin.id, "match.swapPlayers", {
@@ -278,6 +296,7 @@ export async function swapBracketPlayers(
     playerBId,
     byeFeedingAId: byeFeedingA?.id ?? null,
     byeFeedingBId: byeFeedingB?.id ?? null,
+    refundedSupportCount: existingSupport.length,
   })
   revalidateTournament(matchA.tournamentId)
 }
