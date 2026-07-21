@@ -118,8 +118,13 @@ export async function closeAllSupport(tournamentId: string) {
 }
 
 /**
- * Swaps two players sitting in (possibly different) matches of the same round —
- * e.g. turning "A vs B" + "C vs D" into "A vs D" + "B vs C" by swapping B and D.
+ * Swaps two players sitting in (possibly different) matches — either:
+ *  - two real matches in the same round, e.g. turning "A vs B" + "C vs D" into
+ *    "A vs D" + "B vs C" by swapping B and D, or
+ *  - a real match in round N and the round-N+1 match that a bye advanced someone
+ *    into, in which case the bye itself is handed to the round-N player instead
+ *    (the bye match's recorded winner and the two participants' currentRound
+ *    are updated to match), so an admin can effectively re-assign who got the bye.
  * Restricted to matches that haven't started and have no support yet, so no
  * support ends up pointing at a player who's no longer in that match.
  */
@@ -142,9 +147,6 @@ export async function swapBracketPlayers(
 
   if (matchA.tournamentId !== matchB.tournamentId) {
     throw new ForbiddenError("Both matches must be in the same tournament.")
-  }
-  if (matchA.round !== matchB.round) {
-    throw new ForbiddenError("You can only swap players within the same round.")
   }
   if (matchA.isBye || matchB.isBye || matchA.isThirdPlaceMatch || matchB.isThirdPlaceMatch) {
     throw new ForbiddenError("Byes and the bronze match can't be swapped.")
@@ -170,6 +172,41 @@ export async function swapBracketPlayers(
     throw new ForbiddenError("That's the same player.")
   }
 
+  // Cross-round swap: only valid when it lines up with an actual bye advancing
+  // into the later match — otherwise fall through to the "same round" error below.
+  let byeMatch: Awaited<ReturnType<typeof db.match.findFirst>> = null
+  let byeRecipientId: string | null = null
+
+  if (matchA.round !== matchB.round) {
+    if (Math.abs(matchA.round - matchB.round) !== 1) {
+      throw new ForbiddenError(
+        "You can only swap players within the same round, or between a bye and the round it advances into."
+      )
+    }
+
+    const aIsEarlier = matchA.round < matchB.round
+    const earlierMatch = aIsEarlier ? matchA : matchB
+    const laterMatch = aIsEarlier ? matchB : matchA
+    const laterPlayerId = aIsEarlier ? playerBId : playerAId
+    byeRecipientId = aIsEarlier ? playerAId : playerBId
+
+    byeMatch = await db.match.findFirst({
+      where: {
+        tournamentId: matchA.tournamentId,
+        isBye: true,
+        round: earlierMatch.round,
+        nextMatchId: laterMatch.id,
+        winnerId: laterPlayerId,
+      },
+    })
+
+    if (!byeMatch) {
+      throw new ForbiddenError(
+        "That swap doesn't line up with a bye — the later-round player didn't advance into this match via one."
+      )
+    }
+  }
+
   await db.$transaction([
     db.match.update({
       where: { id: matchAId },
@@ -179,6 +216,26 @@ export async function swapBracketPlayers(
       where: { id: matchBId },
       data: slotB === 1 ? { player1Id: playerAId } : { player2Id: playerAId },
     }),
+    ...(byeMatch && byeRecipientId
+      ? [
+          db.match.update({
+            where: { id: byeMatch.id },
+            data: {
+              winnerId: byeRecipientId,
+              player1Id: byeMatch.player1Id ? byeRecipientId : byeMatch.player1Id,
+              player2Id: byeMatch.player2Id ? byeRecipientId : byeMatch.player2Id,
+            },
+          }),
+          db.participant.update({
+            where: { id: byeRecipientId },
+            data: { currentRound: byeMatch.round + 1 },
+          }),
+          db.participant.update({
+            where: { id: byeRecipientId === playerAId ? playerBId : playerAId },
+            data: { currentRound: byeMatch.round },
+          }),
+        ]
+      : []),
   ])
 
   await logAudit(admin.id, "match.swapPlayers", {
@@ -188,6 +245,7 @@ export async function swapBracketPlayers(
     slotB,
     playerAId,
     playerBId,
+    byeMatchId: byeMatch?.id ?? null,
   })
   revalidateTournament(matchA.tournamentId)
 }
