@@ -1,5 +1,7 @@
 "use server"
 
+import type { Prisma } from "@prisma/client"
+
 import { requireRoleForAction, ForbiddenError } from "@/lib/auth"
 import { logAudit } from "@/lib/audit"
 import { db } from "@/lib/db"
@@ -122,9 +124,11 @@ export async function closeAllSupport(tournamentId: string) {
  *  - two real matches in the same round, e.g. turning "A vs B" + "C vs D" into
  *    "A vs D" + "B vs C" by swapping B and D, or
  *  - a real match in round N and the round-N+1 match that a bye advanced someone
- *    into, in which case the bye itself is handed to the round-N player instead
- *    (the bye match's recorded winner and the two participants' currentRound
- *    are updated to match), so an admin can effectively re-assign who got the bye.
+ *    into, in which case the bye itself is handed to the round-N player instead.
+ * Whenever either slot involved is currently filled by a bye winner, that bye
+ * match's recorded winner (and the affected participants' currentRound) is kept
+ * in sync with whoever ends up in that slot — this applies even to a same-round
+ * swap between two players who each arrived via a *different* bye.
  * Restricted to matches that haven't started and have no support yet, so no
  * support ends up pointing at a player who's no longer in that match.
  */
@@ -172,42 +176,51 @@ export async function swapBracketPlayers(
     throw new ForbiddenError("That's the same player.")
   }
 
-  // Cross-round swap: only valid when it lines up with an actual bye advancing
-  // into the later match — otherwise fall through to the "same round" error below.
-  let byeMatch: Awaited<ReturnType<typeof db.match.findFirst>> = null
-  let byeRecipientId: string | null = null
+  if (matchA.round !== matchB.round && Math.abs(matchA.round - matchB.round) !== 1) {
+    throw new ForbiddenError(
+      "You can only swap players within the same round, or between a bye and the round it advances into."
+    )
+  }
 
-  if (matchA.round !== matchB.round) {
-    if (Math.abs(matchA.round - matchB.round) !== 1) {
-      throw new ForbiddenError(
-        "You can only swap players within the same round, or between a bye and the round it advances into."
-      )
-    }
-
-    const aIsEarlier = matchA.round < matchB.round
-    const earlierMatch = aIsEarlier ? matchA : matchB
-    const laterMatch = aIsEarlier ? matchB : matchA
-    const laterPlayerId = aIsEarlier ? playerBId : playerAId
-    byeRecipientId = aIsEarlier ? playerAId : playerBId
-
-    byeMatch = await db.match.findFirst({
+  // A slot can only be "bye-fed" if some bye match's nextMatchId/nextMatchSlot points
+  // at it and its recorded winner is whoever currently occupies it. Checked for BOTH
+  // slots independently (not just in a cross-round swap) — two round-2 players who
+  // each arrived via a *different* bye still need their originating byes re-pointed,
+  // otherwise the bracket would keep crediting the old occupant with a bye they no
+  // longer have.
+  const [byeFeedingA, byeFeedingB] = await Promise.all([
+    db.match.findFirst({
       where: {
         tournamentId: matchA.tournamentId,
         isBye: true,
-        round: earlierMatch.round,
-        nextMatchId: laterMatch.id,
-        winnerId: laterPlayerId,
+        nextMatchId: matchAId,
+        nextMatchSlot: slotA,
+        winnerId: playerAId,
       },
-    })
+    }),
+    db.match.findFirst({
+      where: {
+        tournamentId: matchA.tournamentId,
+        isBye: true,
+        nextMatchId: matchBId,
+        nextMatchSlot: slotB,
+        winnerId: playerBId,
+      },
+    }),
+  ])
 
-    if (!byeMatch) {
+  if (matchA.round !== matchB.round) {
+    // Cross-round swaps are only legitimate when the later-round slot is bye-fed —
+    // that's the only way a player could legally be sitting a round ahead of the other.
+    const laterSlotBye = matchA.round > matchB.round ? byeFeedingA : byeFeedingB
+    if (!laterSlotBye) {
       throw new ForbiddenError(
         "That swap doesn't line up with a bye — the later-round player didn't advance into this match via one."
       )
     }
   }
 
-  await db.$transaction([
+  const updates: Prisma.PrismaPromise<unknown>[] = [
     db.match.update({
       where: { id: matchAId },
       data: slotA === 1 ? { player1Id: playerBId } : { player2Id: playerBId },
@@ -216,27 +229,45 @@ export async function swapBracketPlayers(
       where: { id: matchBId },
       data: slotB === 1 ? { player1Id: playerAId } : { player2Id: playerAId },
     }),
-    ...(byeMatch && byeRecipientId
-      ? [
-          db.match.update({
-            where: { id: byeMatch.id },
-            data: {
-              winnerId: byeRecipientId,
-              player1Id: byeMatch.player1Id ? byeRecipientId : byeMatch.player1Id,
-              player2Id: byeMatch.player2Id ? byeRecipientId : byeMatch.player2Id,
-            },
-          }),
-          db.participant.update({
-            where: { id: byeRecipientId },
-            data: { currentRound: byeMatch.round + 1 },
-          }),
-          db.participant.update({
-            where: { id: byeRecipientId === playerAId ? playerBId : playerAId },
-            data: { currentRound: byeMatch.round },
-          }),
-        ]
-      : []),
-  ])
+  ]
+
+  if (byeFeedingA) {
+    // playerB now holds the bye that used to feed matchA's slot.
+    updates.push(
+      db.match.update({
+        where: { id: byeFeedingA.id },
+        data: {
+          winnerId: playerBId,
+          player1Id: byeFeedingA.player1Id ? playerBId : byeFeedingA.player1Id,
+          player2Id: byeFeedingA.player2Id ? playerBId : byeFeedingA.player2Id,
+        },
+      }),
+      db.participant.update({ where: { id: playerBId }, data: { currentRound: byeFeedingA.round + 1 } })
+    )
+    // playerA is leaving that bye — only actually drops a round if the match they're
+    // moving into is earlier (a same-round swap keeps them at the same round either way).
+    if (matchB.round < matchA.round) {
+      updates.push(db.participant.update({ where: { id: playerAId }, data: { currentRound: matchB.round } }))
+    }
+  }
+  if (byeFeedingB) {
+    updates.push(
+      db.match.update({
+        where: { id: byeFeedingB.id },
+        data: {
+          winnerId: playerAId,
+          player1Id: byeFeedingB.player1Id ? playerAId : byeFeedingB.player1Id,
+          player2Id: byeFeedingB.player2Id ? playerAId : byeFeedingB.player2Id,
+        },
+      }),
+      db.participant.update({ where: { id: playerAId }, data: { currentRound: byeFeedingB.round + 1 } })
+    )
+    if (matchA.round < matchB.round) {
+      updates.push(db.participant.update({ where: { id: playerBId }, data: { currentRound: matchA.round } }))
+    }
+  }
+
+  await db.$transaction(updates)
 
   await logAudit(admin.id, "match.swapPlayers", {
     matchAId,
@@ -245,7 +276,8 @@ export async function swapBracketPlayers(
     slotB,
     playerAId,
     playerBId,
-    byeMatchId: byeMatch?.id ?? null,
+    byeFeedingAId: byeFeedingA?.id ?? null,
+    byeFeedingBId: byeFeedingB?.id ?? null,
   })
   revalidateTournament(matchA.tournamentId)
 }
